@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.11.22"
+__generated_with = "0.12.9"
 app = marimo.App(width="medium")
 
 
@@ -76,20 +76,6 @@ def _():
         sf,
         sqrt,
     )
-
-
-@app.cell
-def _(np, sf):
-    # Set the scale for phase space
-    # sf.hbar = 1
-    scale: float = np.sqrt(sf.hbar * np.pi)
-    return (scale,)
-
-
-@app.cell
-def _(Engine):
-    engine: Engine = Engine("bosonic")
-    return (engine,)
 
 
 @app.cell
@@ -227,7 +213,7 @@ def _(BaseBosonicState, basename, ndarray, np, plt, scale, sf):
 
             axs[i].set_title("Homodyne distribution for Pauli " + paulis[i] +
                              "\n" + r'$\langle$'+paulis[i]+r'$\rangle$='+
-                             str(np.around(expectations[i],2)))
+                             str(np.around(expectations[i],4)))
             axs[i].set_xlabel(homodynes[i] + r' (units of $\sqrt{\pi\hbar}$ )', fontsize=9)
 
         axs[0].set_ylabel("Marginal Distribution", fontsize=9)
@@ -262,6 +248,20 @@ def _(GKP, LossChannel, Program):
 
         return circuit
     return (create_gkp_circuit,)
+
+
+@app.cell
+def _(np, sf):
+    # Set the scale for phase space
+    sf.hbar = 1
+    scale: float = np.sqrt(sf.hbar * np.pi)
+    return (scale,)
+
+
+@app.cell
+def _(Engine):
+    engine: Engine = Engine("bosonic")
+    return (engine,)
 
 
 @app.cell
@@ -330,39 +330,39 @@ def _(gkp_state, ndarray, np, quad_axis):
 
 
 @app.cell
-def _(gkp_state, ndarray, quad_axis):
+def _():
     # Calculate the discretized Wigner function of the specified mode.
     # containing reduced Wigner function values for specified x and p values.
-    wigner_gkp: ndarray = gkp_state.wigner(mode=0, xvec=quad_axis, pvec=quad_axis)
-    return (wigner_gkp,)
-
-
-@app.cell
-def _(quad_axis, wigner_contour_plot, wigner_gkp):
-    wigner_contour_plot(X=quad_axis, P=quad_axis, Z=wigner_gkp)
+    # wigner_gkp: ndarray = gkp_state.wigner(mode=0, xvec=quad_axis, pvec=quad_axis)
     return
 
 
 @app.cell
-def _(quad_axis, wigner_3d_plot, wigner_gkp):
-    wigner_3d_plot(X=quad_axis, P=quad_axis, Z=wigner_gkp)
+def _():
+    # wigner_contour_plot(X=quad_axis, P=quad_axis, Z=wigner_gkp)
     return
 
 
 @app.cell
-def _(quad_axis, wigner_combined_plot, wigner_gkp):
-    wigner_combined_plot(X=quad_axis, P=quad_axis, Z=wigner_gkp)
+def _():
+    # wigner_3d_plot(X=quad_axis, P=quad_axis, Z=wigner_gkp)
     return
 
 
 @app.cell
-def _(Engine, GKP, MeasureP, MeasureX, Program):
+def _():
+    # wigner_combined_plot(X=quad_axis, P=quad_axis, Z=wigner_gkp)
+    return
+
+
+@app.cell
+def _(Engine, GKP, MeasureP, MeasureX, Program, epsilon):
     shots: int = 1024  # Number of samples
 
     # Run the program again, collecting q samples this time
     circuit_gkp_x = Program(1)
     with circuit_gkp_x.context as qx:
-        GKP(epsilon=0.0631) | qx
+        GKP(epsilon=epsilon) | qx
         MeasureX | qx
     eng = Engine("bosonic")
     gkp_samples_x = eng.run(circuit_gkp_x, shots=shots).samples[:, 0]
@@ -370,7 +370,7 @@ def _(Engine, GKP, MeasureP, MeasureX, Program):
     # Run the program again, collecting p samples this time
     circuit_gkp_p = Program(1)
     with circuit_gkp_p.context as qp:
-        GKP(epsilon=0.0631) | qp
+        GKP(epsilon=epsilon) | qp
         MeasureP | qp
     eng = Engine("bosonic")
     gkp_samples_p = eng.run(circuit_gkp_p, shots=shots).samples[:, 0]
@@ -400,7 +400,7 @@ def _(
     scale,
 ):
     # Plot the results
-    fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axs = plt.subplots(1, 2, figsize=(10, 5))
     fig.suptitle("Homodyne Distributions (expected - actual)\n" + r"$|0^\epsilon\rangle_{GKP}$, $\epsilon=0.0631$ ("+ str(linear2db(epsilon)) +" db)", fontsize=18)
 
     axs[0].hist(gkp_samples_x / scale, bins=100, density=True, label="Expected (non-lossy)", color="cornflowerblue")

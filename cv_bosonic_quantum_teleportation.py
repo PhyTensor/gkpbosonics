@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.11.22"
+__generated_with = "0.12.9"
 app = marimo.App(width="medium")
 
 
@@ -109,29 +109,26 @@ def _(BaseBosonicState, Engine, Program, Result):
 
 
 @app.cell
-def _(BSgate, GKP, LossChannel, MeasureP, MeasureX, Program, S2gate, np):
-    def create_gkp_circuit(qubit_state: list, epsilon: int, num_modes: int, noise_channel: bool = False, loss_parameter: float = 1.0) -> Program:
+def _(BSgate, GKP, MeasureP, MeasureX, Program, Xgate, Zgate, pi, sqrt):
+    def create_gkp_circuit(qubit_state: list, epsilon: int, num_modes: int) -> Program:
         circuit: Program = Program(num_subsystems=num_modes)
 
         with circuit.context as q:
             GKP(state=[0, 0], epsilon=epsilon) | q[0]
             # Coherent(r=r, phi=phi) | q[0]
-            # GKP(state=[0, 0], epsilon=epsilon) | q[1]
-            # GKP(state=[0, 0], epsilon=epsilon) | q[2]
+            GKP(state=[0, 0], epsilon=epsilon) | q[1]
+            GKP(state=[0, 0], epsilon=epsilon) | q[2]
 
             # Squeezed(-2) | q[1]
             # Squeezed(2) | q[2]
-            S2gate(2) | (q[1], q[2])
-
-            if noise_channel:
-                LossChannel(loss_parameter) | q[0]
+            # S2gate(2) | (q[1], q[2])
 
             # apply gates
-            # BS = BSgate(pi/4, pi)
-            # BS | (q[1], q[2])
-            # BS | (q[0], q[1])
+            BS = BSgate(pi/4, pi)
+            BS | (q[1], q[2])
+            BS | (q[0], q[1])
 
-            BSgate(theta=np.pi/4, phi=0) | (q[0], q[1])
+            # BSgate(theta=np.pi/4, phi=0) | (q[0], q[1])
 
             # Perform homodyne measurements
             MeasureX | q[0]
@@ -139,8 +136,8 @@ def _(BSgate, GKP, LossChannel, MeasureP, MeasureX, Program, S2gate, np):
 
             # # displacement gates conditioned on the measurements
             # print( sqrt(2) * q[0].par)
-            # Xgate(sqrt(2) * q[0].par) | q[2]
-            # Zgate(-sqrt(2) * q[1].par) | q[2]
+            Xgate(sqrt(2) * q[0].par) | q[2]
+            Zgate(-sqrt(2) * q[1].par) | q[2]
 
             # if noise_channel:
             #     LossChannel(loss_parameter) | q[0]
@@ -171,19 +168,19 @@ def _(BSgate, GKP, LossChannel, MeasureP, MeasureX, Program, S2gate, np):
 
 @app.cell
 def _():
-    epsilon: float = 0.0631
+    epsilon: float = 0.08631
     return (epsilon,)
 
 
 @app.cell
 def _(Program, create_gkp_circuit, epsilon):
-    circuit: Program = create_gkp_circuit([], epsilon, 3)#, True, 0.7)
+    circuit: Program = create_gkp_circuit([], epsilon, 3)
     return (circuit,)
 
 
 @app.cell
 def _(BaseBosonicState, Engine, circuit, execute_gkp_circuit):
-    engine: Engine = Engine("bosonic")
+    engine: Engine = Engine("fock")
     gkp_state: BaseBosonicState = execute_gkp_circuit(engine, circuit)
     print(gkp_state.is_pure)
     return engine, gkp_state

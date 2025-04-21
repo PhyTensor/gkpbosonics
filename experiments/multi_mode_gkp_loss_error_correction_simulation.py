@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.11.22"
+__generated_with = "0.12.9"
 app = marimo.App(width="medium")
 
 
@@ -14,14 +14,18 @@ def _():
 def _(mo):
     mo.md(
         r"""
-        # Simulating Single-Mode Gaussian Displacement Noise
+        # Simulating Loss on a Multi-Mode GKP Qubit
 
-        Gaussian displacement noise can be simulated by applying a `Displacement` operation to the GKP qubit, where the displacement amplitude and phase are randomly sampled from a Gaussian distribution.
-
-        One starts by preparing a GKP state and then applying a random displacement in the complex plane, with both the real and imaginary parts of the displacement drawn from a normal distribution with a specified standard deviation. To visualize the effect of this noise, the Wigner function of the noisy state is averaged over multiple simulations.
+        Loss can be modeled in StrawberryFields using the `LossChannel` operation . This operation simulates the coupling of the qubit mode to a vacuum environment, effectively reducing the energy of the state based on a transmissivity parameter `T`, where a lower `T` indicates more loss.
         """
     )
     return
+
+
+@app.cell
+def _():
+    basename: str = "multi_mode_gkp_loss_correction_"
+    return (basename,)
 
 
 @app.cell
@@ -39,7 +43,7 @@ def _():
     from strawberryfields import Engine, Program, Result
     from strawberryfields.backends import BaseBosonicState
     from strawberryfields.ops import (GKP, BSgate, Coherent, LossChannel,
-                                      MeasureP, MeasureX, Squeezed, Xgate,
+                                      MeasureP, MeasureX, MeasureHomodyne, Squeezed, Xgate,
                                       Zgate, Dgate, S2gate)
 
     # set the random seed
@@ -53,6 +57,7 @@ def _():
         Engine,
         GKP,
         LossChannel,
+        MeasureHomodyne,
         MeasureP,
         MeasureX,
         Program,
@@ -72,26 +77,6 @@ def _():
         sf,
         sqrt,
     )
-
-
-@app.cell
-def _():
-    basename: str = "single_mode_gkp_displacement_"
-    return (basename,)
-
-
-@app.cell
-def _(np, sf):
-    # Set the scale for phase space
-    # sf.hbar = 1
-    scale: float = np.sqrt(sf.hbar * np.pi)
-    return (scale,)
-
-
-@app.cell
-def _(Engine):
-    engine: Engine = Engine("bosonic")
-    return (engine,)
 
 
 @app.cell
@@ -138,6 +123,39 @@ def _(basename, ndarray, np, plt):
         plt.savefig(fname=basename+plotname, dpi=300)
         plt.show()
     return (wigner_3d_plot,)
+
+
+@app.cell
+def _(cm, mpl, np, plt):
+    def wigner_combined_plot(X: np.ndarray, P: np.ndarray, Z: np.ndarray) -> None:
+        """
+        Generates a single figure with two subplots:
+        - Left: Wigner function contour plot
+        - Right: 3D surface plot
+        """
+        color_scale = np.max(Z.real)
+        norm = mpl.colors.Normalize(-color_scale, color_scale)
+
+        fig, axes = plt.subplots(1, 2, figsize=(12, 6), subplot_kw={"projection": "3d"})
+
+        # Contour Plot
+        axes[0].set_aspect("equal")
+        ctf = axes[0].contourf(X, P, Z, 120, cmap=cm.RdBu, norm=norm)
+        fig.colorbar(ctf, ax=axes[0])
+        axes[0].set_xlabel(r"q (units of $\sqrt{\hbar}$)", fontsize=9)
+        axes[0].set_ylabel(r"p (units of $\sqrt{\hbar}$)", fontsize=9)
+        axes[0].set_title("Wigner Contour Plot")
+
+        # 3D Surface Plot
+        X, P = np.meshgrid(X, P)
+        axes[1].plot_surface(X, P, Z, cmap="RdYlGn", lw=0.5, rstride=1, cstride=1)
+        axes[1].set_xlabel(r"q (units of $\sqrt{\hbar}$)", fontsize=9)
+        axes[1].set_ylabel(r"p (units of $\sqrt{\hbar}$)", fontsize=9)
+        axes[1].set_title("Wigner 3D Plot")
+
+        plt.tight_layout()
+        plt.show()
+    return (wigner_combined_plot,)
 
 
 @app.cell
@@ -219,44 +237,39 @@ def _(BaseBosonicState, Engine, Program, Result):
 
 
 @app.cell
-def _():
-    noise_std = 0.91      # Standard deviation of displacement noise
-    sigma = 2.92  # Standard deviation of Gaussian displacement
-    return noise_std, sigma
-
-
-@app.cell
-def _(Dgate, GKP, LossChannel, Program, noise_std, np):
+def _(BSgate, Dgate, GKP, LossChannel, MeasureHomodyne, Program):
     def create_gkp_circuit(qubit_state: list, epsilon: int, num_modes: int, noise_channel: bool = False, loss_parameter: float = 1.0) -> Program:
         circuit: Program = Program(num_subsystems=num_modes)
 
         with circuit.context as q:
-            GKP(epsilon=epsilon) | q
-            # Coherent(0.5, 2) | q
+            GKP(epsilon=epsilon) | q[0]
+            GKP(state=qubit_state, epsilon=epsilon) | q[1]
 
-            # Apply noise: sample displacements for x and p quadratures
-            dx = np.random.normal(0, noise_std)
-            dp = np.random.normal(0, noise_std)
-            print(f"(dx, dp) = ( {dx}, {dp} )")
-            # Create a total displacement magnitude (this is simplified)
-            alpha = np.sqrt(dx**2 + 1j*dp**2)
-            # alpha = (0.5*scale) + (0.5*scale*1j)
-            # amplitude = np.abs(alpha)
-            # phase = np.angle(alpha)
-            # print(f"(dx, dp): ({dx}, {dp}) \t alpha: {alpha} \t amplitude: {amplitude} \t phase: {phase}")
-            # Dgate(amplitude) | q
-
-            # alpha = np.random.normal(0, sigma) + 1j * np.random.normal(0, sigma)
-            amplitude = np.real(alpha)
-            phase = np.imag(alpha)
-            print(f"alpha: {alpha}, amplitude: {amplitude}, phase: {phase}")
-            Dgate(amplitude, phase) | q
+            BSgate() | (q[0], q[1]) # 50-50 split
 
             if noise_channel:
-                LossChannel(loss_parameter) | q
+                LossChannel(loss_parameter) | q[0]
+
+            MeasureHomodyne(0, select=0) | q[1]
+        
+            Dgate(-(q[1].par ** 2)) | q[0]
 
         return circuit
     return (create_gkp_circuit,)
+
+
+@app.cell
+def _(np, sf):
+    # Set the scale for phase space
+    sf.hbar = 1
+    scale: float = np.sqrt(sf.hbar * np.pi)
+    return (scale,)
+
+
+@app.cell
+def _(Engine):
+    engine: Engine = Engine("bosonic")
+    return (engine,)
 
 
 @app.cell
@@ -264,13 +277,19 @@ def _(np):
     # Create a GKP |+> state
     # angles theta and phi specify the qubit state
     qubit_state_plus: list = [np.pi / 2, 0]
-    epsilon: float = 0.0631
+    epsilon: float = 0.08631
     return epsilon, qubit_state_plus
 
 
 @app.cell
+def _(mo):
+    mo.md(r"""Create GKP qubit in the state $|+^\epsilon\rangle_{gkp}$ with the subsequent application of the loss channel with a transmissivity of 0.85.""")
+    return
+
+
+@app.cell
 def _(Program, create_gkp_circuit, epsilon, qubit_state_plus):
-    circuit: Program = create_gkp_circuit(qubit_state_plus, epsilon, 1)#, True, 0.85)
+    circuit: Program = create_gkp_circuit(qubit_state_plus, epsilon, 2, True, 0.85)
     return (circuit,)
 
 
@@ -281,6 +300,12 @@ def _(BaseBosonicState, circuit, engine, execute_gkp_circuit):
 
 
 @app.cell
+def _(mo):
+    mo.md(r"""We plot the marginal distributions of the position and momentum quadratures, before and after the application of loss""")
+    return
+
+
+@app.cell
 def _(calculate_and_plot_marginals, gkp_state):
     calculate_and_plot_marginals(gkp_state, 0)
     return
@@ -288,7 +313,13 @@ def _(calculate_and_plot_marginals, gkp_state):
 
 @app.cell
 def _(mo):
-    mo.md(r"""The simulation illustrates that Gaussian displacement noise smears out the sharp, delta-like peaks characteristic of an ideal GKP state's Wigner function . Instead of distinct, localized peaks, the Wigner function of the noisy state resembles a broader Gaussian distribution centered around the origin. This blurring effect indicates that the state has become less well-defined in phase space, increasing the uncertainty in its quadrature values. This increased uncertainty directly translates to a higher probability of measurement errors when attempting to read out the logical state of the qubit. The severity of this effect is directly proportional to the variance of the Gaussian displacement, with larger variances leading to more significant blurring .""")
+    mo.md(r"""The simulation reveals that after the loss channel is applied, the peaks in the homodyne distribution become broadened and shifted towards the origin. Loss causes the peaks to broaden and shift, leading to outcomes falling outside the correct measurement bins and consequently resulting in qubit readout errors.""")
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""To access the quadrature distributions, use the `marginal` method of the `state` object. We then go ahead to calcualate the quadrature distributions.""")
     return
 
 
@@ -307,33 +338,39 @@ def _(gkp_state, ndarray, np, quad_axis):
 
 
 @app.cell
-def _(gkp_state, ndarray, quad_axis):
+def _():
     # Calculate the discretized Wigner function of the specified mode.
     # containing reduced Wigner function values for specified x and p values.
-    wigner_gkp: ndarray = gkp_state.wigner(mode=0, xvec=quad_axis, pvec=quad_axis)
-    return (wigner_gkp,)
-
-
-@app.cell
-def _(quad_axis, wigner_contour_plot, wigner_gkp):
-    wigner_contour_plot(X=quad_axis, P=quad_axis, Z=wigner_gkp)
+    # wigner_gkp: ndarray = gkp_state.wigner(mode=0, xvec=quad_axis, pvec=quad_axis)
     return
 
 
 @app.cell
-def _(quad_axis, wigner_3d_plot, wigner_gkp):
-    wigner_3d_plot(X=quad_axis, P=quad_axis, Z=wigner_gkp)
+def _():
+    # wigner_contour_plot(X=quad_axis, P=quad_axis, Z=wigner_gkp)
     return
 
 
 @app.cell
-def _(Engine, GKP, MeasureP, MeasureX, Program):
+def _():
+    # wigner_3d_plot(X=quad_axis, P=quad_axis, Z=wigner_gkp)
+    return
+
+
+@app.cell
+def _():
+    # wigner_combined_plot(X=quad_axis, P=quad_axis, Z=wigner_gkp)
+    return
+
+
+@app.cell
+def _(Engine, GKP, MeasureP, MeasureX, Program, epsilon):
     shots: int = 1024  # Number of samples
 
     # Run the program again, collecting q samples this time
     circuit_gkp_x = Program(1)
     with circuit_gkp_x.context as qx:
-        GKP(epsilon=0.0631) | qx
+        GKP(epsilon=epsilon) | qx
         MeasureX | qx
     eng = Engine("bosonic")
     gkp_samples_x = eng.run(circuit_gkp_x, shots=shots).samples[:, 0]
@@ -341,7 +378,7 @@ def _(Engine, GKP, MeasureP, MeasureX, Program):
     # Run the program again, collecting p samples this time
     circuit_gkp_p = Program(1)
     with circuit_gkp_p.context as qp:
-        GKP(epsilon=0.0631) | qp
+        GKP(epsilon=epsilon) | qp
         MeasureP | qp
     eng = Engine("bosonic")
     gkp_samples_p = eng.run(circuit_gkp_p, shots=shots).samples[:, 0]
@@ -371,7 +408,7 @@ def _(
     scale,
 ):
     # Plot the results
-    fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axs = plt.subplots(1, 2, figsize=(10, 5))
     fig.suptitle("Homodyne Distributions (expected - actual)\n" + r"$|0^\epsilon\rangle_{GKP}$, $\epsilon=0.0631$ ("+ str(linear2db(epsilon)) +" db)", fontsize=18)
 
     axs[0].hist(gkp_samples_x / scale, bins=100, density=True, label="Expected (non-lossy)", color="cornflowerblue")
@@ -391,6 +428,24 @@ def _(
     plt.savefig(basename+"marginal_distr_comparison", dpi=300)
     plt.show()
     return axs, fig
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""The reduction in the amplitude of the marginal distributions signifies a decreased probability of measuring larger quadrature values, reflecting the energy loss from the system.""")
+    return
+
+
+@app.cell
+def _():
+    # sf.plot_wigner(state=gkp_state, mode=0, xvec=quad_axis, pvec=quad_axis)
+    return
+
+
+@app.cell
+def _():
+    # sf.plot_quad(state=gkp_state, modes=[0], xvec=quad_axis, pvec=quad_axis)
+    return
 
 
 if __name__ == "__main__":

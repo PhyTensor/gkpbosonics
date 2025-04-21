@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.11.21"
+__generated_with = "0.12.9"
 app = marimo.App(width="medium")
 
 
@@ -26,9 +26,9 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        ## GKP Quadratures
+        # Sampling GKP Quadratures
 
-        GKP states can be understood as superpositions of multiple squeezed states.
+        GKP states can be understood as superpositions of multiple squeezed states. These states are named after Daniel Gottesman , Alexei Kitaev and John Preskill who introduced them in a seminal paper in 2001.
 
         We are exploring the distributions of its quadratures. The distributions of the position $q$ and momentum $p$ quadratures can be obtained by integrating the Wigner function:
 
@@ -52,7 +52,8 @@ def _():
     import matplotlib as mpl
     from matplotlib import cm
 
-    from strawberryfields import hbar, Program, ops, Engine, Result
+    import strawberryfields as sf
+    from strawberryfields import Program, ops, Engine, Result
     from strawberryfields.ops import LossChannel
     from strawberryfields.backends import BaseBosonicState
     return (
@@ -62,12 +63,12 @@ def _():
         Program,
         Result,
         cm,
-        hbar,
         mpl,
         ndarray,
         np,
         ops,
         plt,
+        sf,
     )
 
 
@@ -78,7 +79,9 @@ def _(mo):
 
 
 @app.cell
-def _():
+def _(sf):
+    sf.hbar = 1.0
+
     # Finite energy parameter of the state
     epsilon: float = 0.0631
     return (epsilon,)
@@ -96,6 +99,8 @@ def _(Program, epsilon, ops):
         with circuit_gkp.context as q:
             # Prepare a mode in finite GKP state
             ops.GKP(epsilon=epsilon) | q
+            # ops.Xgate(np.sqrt(np.pi * sf.hbar)*1.0) | q
+            # ops.Dgate(sf.math.sqrt(np.pi*sf.hbar)*1.0) | q
             # LossChannel(0.85) | q
 
         return circuit_gkp
@@ -137,10 +142,10 @@ def _(mo):
 
 
 @app.cell
-def _(hbar, ndarray, np, state_gkp):
+def _(ndarray, np, sf, state_gkp):
     # Calculate the quadrature distributions
     # we can directly calculate the expected quadrature distributions
-    scale: float = np.sqrt(np.pi * hbar)
+    scale: float = np.sqrt(np.pi * sf.hbar)
     quad_axis: ndarray = np.linspace(-4, 4, 256) * scale
 
     # Calculate the discretized marginal distribution of the specified mode along the x\cos\phi + p\sin\phi quadrature
@@ -165,10 +170,12 @@ def _(cm, mpl, ndarray, np, plt):
         color_scale: float = np.max(Z.real)
         nrm: mpl.colors.Normalize = mpl.colors.Normalize(-color_scale, color_scale)
 
+        # fig = plt.figure(figsize=(12, 4))
         plt.axes().set_aspect("equal")
-        plt.contourf(X, P, Z, 120, cmap=cm.RdBu, norm=nrm)
-        plt.xlabel(r"q (units of $\sqrt{\hbar}$)", fontsize=9)
-        plt.ylabel(r"p (units of $\sqrt{\hbar}$)", fontsize=9)
+        plt.grid(True, linestyle='--', alpha=0.3)
+        plt.contourf(X, P, Z, 60, cmap=cm.RdBu, norm=nrm)
+        plt.xlabel(r"q (units of $\sqrt{\pi\hbar}$)", fontsize=10)
+        plt.ylabel(r"p (units of $\sqrt{\pi\hbar}$)", fontsize=10)
         plt.tight_layout()
         plt.show()
     return (wigner_contour_plot,)
@@ -179,15 +186,15 @@ def _(ndarray, np, plt):
     def wigner_3d_plot(X: ndarray, P: ndarray, Z: ndarray) -> None:
         """
         """
-        fig = plt.figure(figsize=(10, 6))
+        fig = plt.figure(figsize=(12, 6))
         X, P = np.meshgrid(X, P)
         ax = fig.add_subplot(111, projection="3d")
         ax.plot_surface(X, P, Z, cmap="RdYlGn", lw=0.5, rstride=1, cstride=1)
         # plt.axes().set_aspect("equal")
         # fig.set_size_inches(4.8, 5)
         # ax.set_axis_off()
-        plt.xlabel(r"q (units of $\sqrt{\hbar}$)", fontsize=9)
-        plt.ylabel(r"p (units of $\sqrt{\hbar}$)", fontsize=9)
+        plt.xlabel(r"q (units of $\sqrt{\pi\hbar}$)", fontsize=9)
+        plt.ylabel(r"p (units of $\sqrt{\pi\hbar}$)", fontsize=9)
         plt.show()
     return (wigner_3d_plot,)
 
@@ -219,34 +226,35 @@ def _(mo):
 
 
 @app.cell
-def _(Engine, Program, ops):
+def _(Engine):
     shots: int = 2000  # Number of samples
 
+    eng = Engine("bosonic")
+    return eng, shots
+
+
+@app.cell
+def _(Program, eng, ops, shots):
     # Run the program again, collecting q samples this time
     circuit_gkp_x = Program(1)
     with circuit_gkp_x.context as qx:
         ops.GKP(epsilon=0.0631) | qx
         ops.MeasureX | qx
-    eng = Engine("bosonic")
-    gkp_samples_x = eng.run(circuit_gkp_x, shots=shots).samples[:, 0]
 
+    gkp_samples_x = eng.run(circuit_gkp_x, shots=shots).samples[:, 0]
+    return circuit_gkp_x, gkp_samples_x, qx
+
+
+@app.cell
+def _(Engine, Program, ops, shots):
     # Run the program again, collecting p samples this time
     circuit_gkp_p = Program(1)
     with circuit_gkp_p.context as qp:
         ops.GKP(epsilon=0.0631) | qp
         ops.MeasureP | qp
-    eng = Engine("bosonic")
-    gkp_samples_p = eng.run(circuit_gkp_p, shots=shots).samples[:, 0]
-    return (
-        circuit_gkp_p,
-        circuit_gkp_x,
-        eng,
-        gkp_samples_p,
-        gkp_samples_x,
-        qp,
-        qx,
-        shots,
-    )
+    eng_p = Engine("bosonic")
+    gkp_samples_p = eng_p.run(circuit_gkp_p, shots=shots).samples[:, 0]
+    return circuit_gkp_p, eng_p, gkp_samples_p, qp
 
 
 @app.cell(hide_code=True)
@@ -275,7 +283,7 @@ def _(
     scale,
 ):
     # Plot the results
-    fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
     fig.suptitle(r"$|0^\epsilon\rangle_{GKP}$, $\epsilon=0.0631$ ("+ str(linear2db(epsilon)) +" db)", fontsize=18)
 
     axs[0].hist(gkp_samples_x / scale, bins=100, density=True, label="Samples", color="cornflowerblue")
@@ -291,7 +299,9 @@ def _(
     axs[1].legend()
     axs[0].tick_params(labelsize=13)
     axs[1].tick_params(labelsize=13)
-    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    # fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    axs[0].grid(True, linestyle='--', alpha=0.2)
+    axs[1].grid(True, linestyle='--', alpha=0.2)
     plt.show()
     return axs, fig
 
