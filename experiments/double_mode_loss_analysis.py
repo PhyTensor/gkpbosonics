@@ -9,15 +9,15 @@ from mpl_toolkits.mplot3d import Axes3D
 from numpy import ndarray, pi, sqrt
 from strawberryfields import Engine, Program, Result
 from strawberryfields.backends import BaseBosonicState, BaseState
-from strawberryfields.ops import (GKP, BSgate, Coherent, CXgate, Dgate,
-                                  LossChannel, MeasureHomodyne, MeasureP,
-                                  MeasureX, Rgate, S2gate, Squeezed, Xgate,
-                                  Zgate)
+from strawberryfields.ops import (GKP, BSgate, Catstate, Coherent, CXgate,
+                                  Dgate, LossChannel, MeasureHomodyne,
+                                  MeasureP, MeasureX, Rgate, S2gate, Squeezed,
+                                  Xgate, Zgate)
 
 # set the random seed
 np.random.seed(42)
 
-class LossAnalysis:
+class DoubleModeLossAnalysis:
     def __init__(self):
         self.engine: Engine = Engine("bosonic")
 
@@ -51,10 +51,18 @@ class LossAnalysis:
 
     def create_gkp_circuit(self, qubit_state: list, epsilon: float, num_modes: int, transmissivity: float = 1.0) -> Program:
         circuit: Program = Program(num_subsystems=num_modes)
+        q = 4.0
+        p = 0.0
+        alpha = (q + 1j * p) / np.sqrt(2 * sf.hbar)
+        k = 1
 
         with circuit.context as q:
-            GKP(state=qubit_state, epsilon=epsilon) | q
-            LossChannel(transmissivity) | q
+            GKP(state=qubit_state, epsilon=epsilon) | q[0]
+            # GKP(state=qubit_state, epsilon=epsilon) | q[1]
+            Catstate(a=np.absolute(alpha), phi=np.angle(alpha), p=k) | q[1]
+            CXgate(1) | (q[1], q[0])
+            LossChannel(transmissivity) | q[0]
+            MeasureHomodyne(0, select=0) | q[1]
 
         return circuit
 
@@ -77,7 +85,7 @@ class LossAnalysis:
         marginals: list = []
         expectation_values: ndarray = np.zeros((0, 3))
         for epsilon in self.epsilons:
-            circ: Program = self.create_gkp_circuit(self.qubit_state, epsilon, 1, transmissivity)
+            circ: Program = self.create_gkp_circuit(self.qubit_state, epsilon, 2, transmissivity)
             gkp_state: BaseBosonicState = self.execute_gkp_circuit(circ)
             print(f"Mean Photon Number, Variance = {gkp_state.mean_photon(0)}")
 
@@ -140,9 +148,9 @@ def db2linear(value):
     return 10 ** (value / 10)
 
 if __name__ == "__main__":
-    loss_analysis: LossAnalysis = LossAnalysis()
+    loss_analysis: DoubleModeLossAnalysis = DoubleModeLossAnalysis()
 
-    loss_transmissivities: List[float] = [1.0, 0.95, 0.85, 0.70, 0.60, 0.2]
+    loss_transmissivities: List[float] = [1.0, 0.95] #, 0.85, 0.70, 0.60, 0.2]
 
     fig, ax = plt.subplots(figsize=(10, 6))
     colors = plt.cm.viridis(np.linspace(0, 1, len(loss_transmissivities)))

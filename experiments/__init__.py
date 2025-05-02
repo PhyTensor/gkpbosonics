@@ -1,1 +1,1 @@
-from experiments import loss_analysis
+from experiments import double_mode_loss_analysis, single_mode_loss_analysis
