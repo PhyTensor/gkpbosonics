@@ -55,7 +55,7 @@ def _():
 @app.cell
 def _(np):
     def linear2db(value: float) -> tuple[float, str]:
-        ans: float = (round(10 * np.log10(value)))
+        ans: float = round(10 * np.log10(value))
         return ans, f"({ans} dB)"
     return (linear2db,)
 
@@ -121,23 +121,31 @@ def _(Engine, Program, np, ops, plt, sf):
 
     # Plot the locations and signs of the deltas
     fig, ax = plt.subplots(1, 2)
-    ax[0].scatter(q_coords_0 / scale,
-               p_coords_0 / scale,
-               c=delta_sign_0,
-               cmap=plt.cm.RdBu, vmin=-1.5, vmax=1.5)
-    ax[1].scatter(q_coords_1 / scale,
-               p_coords_1 / scale,
-               c=delta_sign_0,
-               cmap=plt.cm.RdBu, vmin=-1.5, vmax=1.5)
+    ax[0].scatter(
+        q_coords_0 / scale,
+        p_coords_0 / scale,
+        c=delta_sign_0,
+        cmap=plt.cm.RdBu,
+        vmin=-1.5,
+        vmax=1.5,
+    )
+    ax[1].scatter(
+        q_coords_1 / scale,
+        p_coords_1 / scale,
+        c=delta_sign_0,
+        cmap=plt.cm.RdBu,
+        vmin=-1.5,
+        vmax=1.5,
+    )
     for i in range(2):
         ax[i].set_xlim(-3.5, 3.5)
         ax[i].set_ylim(-3.5, 3.5)
-        ax[i].set_xlabel(r'$q$ (units of $\sqrt{\pi\hbar}$ )', fontsize=9)
+        ax[i].set_xlabel(r"$q$ (units of $\sqrt{\pi\hbar}$ )", fontsize=9)
         ax[i].set_aspect("equal")
 
-    ax[0].set_title(r'$|0\rangle_{\rm gkp}$ Wigner function', fontsize=11)
-    ax[1].set_title(r'$|1\rangle_{\rm gkp}$ Wigner function', fontsize=11)
-    ax[0].set_ylabel(r'$p$ (units of $\sqrt{\pi\hbar}$ )', fontsize=9)
+    ax[0].set_title(r"$|0\rangle_{\rm gkp}$ Wigner function", fontsize=11)
+    ax[1].set_title(r"$|1\rangle_{\rm gkp}$ Wigner function", fontsize=11)
+    ax[0].set_ylabel(r"$p$ (units of $\sqrt{\pi\hbar}$ )", fontsize=9)
     fig.tight_layout()
     plt.show()
     return (
@@ -190,7 +198,6 @@ def _(ndarray, np, scale):
 @app.cell
 def _(BaseBosonicState, Engine, Program, epsilons, ops, quad, wigners):
     for epsilon in epsilons:
-
         # Create a GKP |0> state
         circ: Program = Program(1)
 
@@ -209,11 +216,15 @@ def _(BaseBosonicState, Engine, Program, epsilons, ops, quad, wigners):
 @app.cell
 def _(colorbar, colors, epsilons, linear2db, np, plt, quad, scale, wigners):
     # Plot the results
-    fig2, axs = plt.subplots(1, 6, figsize=(16, 4), gridspec_kw={"width_ratios": [1, 1, 1, 1, 1, 0.05]})
+    fig2, axs = plt.subplots(
+        1, 6, figsize=(16, 4), gridspec_kw={"width_ratios": [1, 1, 1, 1, 1, 0.05]}
+    )
     cmap = plt.cm.RdBu
     cmax = np.real_if_close(np.amax(np.array(wigners)))
     norm = colors.Normalize(vmin=-cmax, vmax=cmax)
-    cb1 = colorbar.ColorbarBase(axs[5], cmap=cmap, norm=norm, orientation="vertical")
+    cb1 = colorbar.ColorbarBase(
+        axs[5], cmap=cmap, norm=norm, orientation="vertical"
+    )
     for k in range(5):
         axs[k].contourf(
             quad / scale,
@@ -224,10 +235,13 @@ def _(colorbar, colors, epsilons, linear2db, np, plt, quad, scale, wigners):
             vmin=-cmax,
             vmax=cmax,
         )
-        axs[k].set_title(r'$\epsilon =$'+str(epsilons[k])+linear2db(epsilons[k])[1], fontsize=11)
-        axs[k].set_xlabel(r'$q$ (units of $\sqrt{\pi\hbar}$ )', fontsize=9)
+        axs[k].set_title(
+            r"$\epsilon =$" + str(epsilons[k]) + linear2db(epsilons[k])[1],
+            fontsize=11,
+        )
+        axs[k].set_xlabel(r"$q$ (units of $\sqrt{\pi\hbar}$ )", fontsize=9)
 
-    axs[0].set_ylabel(r'$p$ (units of $\sqrt{\pi\hbar}$ )', fontsize=9)
+    axs[0].set_ylabel(r"$p$ (units of $\sqrt{\pi\hbar}$ )", fontsize=9)
     cb1.set_label("Wigner function", fontsize=9)
     fig2.tight_layout()
     plt.show()

@@ -42,7 +42,7 @@ def _():
     import strawberryfields as sf
     from strawberryfields import Engine, Program, Result
     from strawberryfields.backends import BaseBosonicState
-    from strawberryfields.ops import (GKP, BSgate, Coherent, LossChannel,
+    from strawberryfields.ops import (GKP, Sgate, BSgate, Coherent, LossChannel,
                                       MeasureP, MeasureX, Squeezed, Xgate,
                                       Zgate, Dgate, S2gate)
 
@@ -62,6 +62,7 @@ def _():
         Program,
         Result,
         S2gate,
+        Sgate,
         Squeezed,
         Xgate,
         Zgate,
@@ -236,12 +237,13 @@ def _(BaseBosonicState, Engine, Program, Result):
 
 
 @app.cell
-def _(GKP, LossChannel, Program):
+def _(GKP, LossChannel, Program, Sgate, pi):
     def create_gkp_circuit(qubit_state: list, epsilon: int, num_modes: int, noise_channel: bool = False, loss_parameter: float = 1.0) -> Program:
         circuit: Program = Program(num_subsystems=num_modes)
 
         with circuit.context as q:
             GKP(epsilon=epsilon) | q
+            Sgate(0, 0.5*pi) | q
 
             if noise_channel:
                 LossChannel(loss_parameter) | q

@@ -55,7 +55,7 @@ def _(sf):
     # Create a GKP |0> state
     def create_gkp_0():
         prog = sf.Program(1)
-    
+
         with prog.context as q:
             sf.ops.GKP() | q
 
@@ -68,11 +68,11 @@ def _(np, sf):
     # Create a GKP |1> state
     def create_gkp_1():
         prog = sf.Program(1)
-    
+
         with prog.context as q:
-            sf.ops.GKP() | q
+            sf.ops.GKP(shape='square') | q
             sf.ops.Xgate(np.sqrt(np.pi * sf.hbar)) | q
-    
+
         return prog
     return (create_gkp_1,)
 
@@ -80,7 +80,7 @@ def _(np, sf):
 @app.cell
 def _(sf):
     eng = sf.Engine("bosonic")
-    shots: int = 2000  # Number of samples
+    shots: int = 1 # 2000  # Number of samples
     return eng, shots
 
 
@@ -127,7 +127,7 @@ def _(gkp_0, gkp_1, np, plt, scale):
         ax[i].set_ylim(-4.5, 4.5)
         ax[i].set_xlabel(r'$q$ (units of $\sqrt{\pi\hbar}$ )', fontsize=9)
         ax[i].set_aspect("equal")
-    
+
     ax[0].set_title(r'$|0\rangle_{\rm gkp}$ Wigner function', fontsize=11)
     ax[1].set_title(r'$|1\rangle_{\rm gkp}$ Wigner function', fontsize=11)
     ax[0].set_ylabel(r'$p$ (units of $\sqrt{\pi\hbar}$ )', fontsize=9)
