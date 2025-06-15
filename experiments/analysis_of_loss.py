@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.12.9"
+__generated_with = "0.13.15"
 app = marimo.App(width="medium")
 
 
@@ -24,14 +24,14 @@ def _():
     module_path = os.path.abspath(os.path.join("./"))
     if module_path not in sys.path:
         sys.path.append(module_path)
-    return module_path, os, sys
+    return
 
 
 @app.cell
 def _():
     from experiments.single_mode_loss_analysis import SingleModeLossAnalysis
     from experiments.double_mode_loss_analysis import DoubleModeLossAnalysis
-    return DoubleModeLossAnalysis, SingleModeLossAnalysis
+    return (SingleModeLossAnalysis,)
 
 
 @app.cell
@@ -69,38 +69,7 @@ def _():
 
     # set the random seed
     np.random.seed(42)
-    return (
-        Axes3D,
-        BSgate,
-        BaseBosonicState,
-        CXgate,
-        Coherent,
-        Dgate,
-        Engine,
-        GKP,
-        List,
-        LossChannel,
-        MeasureHomodyne,
-        MeasureP,
-        MeasureX,
-        Program,
-        Result,
-        Rgate,
-        S2gate,
-        Squeezed,
-        Xgate,
-        Zgate,
-        cm,
-        colorbar,
-        colors,
-        mpl,
-        ndarray,
-        np,
-        pi,
-        plt,
-        sf,
-        sqrt,
-    )
+    return List, ndarray, np, plt
 
 
 @app.cell
@@ -118,7 +87,7 @@ def _(np):
 
     def db2linear(value):
         return 10 ** (value / 10)
-    return db2linear, linear2db
+    return (linear2db,)
 
 
 @app.cell
@@ -128,20 +97,20 @@ def _(List):
 
 
 @app.cell
-def _(DoubleModeLossAnalysis, SingleModeLossAnalysis):
+def _(SingleModeLossAnalysis):
     single_mode_loss_analysis: SingleModeLossAnalysis = SingleModeLossAnalysis()
-    double_mode_loss_analysis: DoubleModeLossAnalysis = DoubleModeLossAnalysis()
-    return double_mode_loss_analysis, single_mode_loss_analysis
+    # double_mode_loss_analysis: DoubleModeLossAnalysis = DoubleModeLossAnalysis()
+    return (single_mode_loss_analysis,)
 
 
 @app.cell
 def _(
-    basename_sm,
+    basename_sm: str,
     linear2db,
-    loss_transmissivities,
+    loss_transmissivities: "List[float]",
     ndarray,
     plt,
-    single_mode_loss_analysis,
+    single_mode_loss_analysis: "SingleModeLossAnalysis",
 ):
     def single_mode_visualisation():
         figsm, axsm = plt.subplots(figsize=(10, 6))
@@ -198,10 +167,10 @@ def _(
 
 @app.cell
 def _(
-    basename_dm,
+    basename_dm: str,
     double_mode_loss_analysis,
     linear2db,
-    loss_transmissivities,
+    loss_transmissivities: "List[float]",
     ndarray,
     plt,
 ):
@@ -255,17 +224,17 @@ def _(
         plt.tight_layout()
         plt.savefig(fname=basename_dm + plotname, dpi=300)
         plt.show()
-    return (double_mode_visualisation,)
+    return
 
 
 @app.cell
 def _(mo):
     mo.md(
         r"""
-        Logical Pauli Z expectation values for for the GKP circuit as a function of the GKP squeezing parameter $\epsilon$ for different values of the loss channel transmissivity $\eta$.
+    Logical Pauli Z expectation values for for the GKP circuit as a function of the GKP squeezing parameter $\epsilon$ for different values of the loss channel transmissivity $\eta$.
 
-        The errors in the absence of losses are due to the finite squeezing of the finite GKP states.
-        """
+    The errors in the absence of losses are due to the finite squeezing of the finite GKP states.
+    """
     )
     return
 
@@ -277,8 +246,8 @@ def _(single_mode_visualisation):
 
 
 @app.cell
-def _(double_mode_visualisation):
-    double_mode_visualisation()
+def _():
+    # double_mode_visualisation()
     return
 
 

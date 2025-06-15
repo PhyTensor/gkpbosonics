@@ -11,7 +11,7 @@ from strawberryfields import Engine, Program, Result
 from strawberryfields.backends import BaseBosonicState, BaseState
 from strawberryfields.ops import (GKP, BSgate, Coherent, CXgate, Dgate,
                                   LossChannel, MeasureHomodyne, MeasureP,
-                                  MeasureX, Rgate, S2gate, Squeezed, Xgate,
+                                  MeasureX, Sgate, Rgate, S2gate, Squeezed, Xgate,
                                   Zgate)
 
 # set the random seed
@@ -54,6 +54,18 @@ class SingleModeLossAnalysis:
 
         with circuit.context as q:
             GKP(state=qubit_state, epsilon=epsilon) | q
+
+            """
+            With zero rotation: above 1.45, we starting getting higher fidelities. Beyond 1.65, there's no appreciable increase/maintenance of fidelity.
+            rotations that are even multiples of pi (0, 2, 4, ...) preserve state.
+            """
+            # Sgate(1.65, 0.00*pi) | q
+
+            """
+            integer multiple rotation of pi (0, 1, 2, 3, ...) preserve state.
+            """
+            # Rgate(1.0*pi) | q
+
             LossChannel(transmissivity) | q
 
         return circuit
