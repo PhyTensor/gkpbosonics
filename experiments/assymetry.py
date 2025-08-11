@@ -1,13 +1,13 @@
 import marimo
 
-__generated_with = "0.12.9"
+__generated_with = "0.13.15"
 app = marimo.App(width="medium")
 
 
 @app.cell
 def _():
     import marimo as mo
-    return (mo,)
+    return
 
 
 @app.cell
@@ -30,35 +30,7 @@ def _():
 
     # set the random seed
     np.random.seed(42)
-    return (
-        Axes3D,
-        BSgate,
-        BaseBosonicState,
-        Coherent,
-        Dgate,
-        Engine,
-        GKP,
-        LossChannel,
-        MeasureP,
-        MeasureX,
-        Program,
-        Result,
-        S2gate,
-        Sgate,
-        Squeezed,
-        Xgate,
-        Zgate,
-        cm,
-        colorbar,
-        colors,
-        mpl,
-        ndarray,
-        np,
-        pi,
-        plt,
-        sf,
-        sqrt,
-    )
+    return cm, mpl, np, pi, plt, sf
 
 
 @app.cell
@@ -68,7 +40,7 @@ def _(np, sf):
     quad_axis= np.linspace(-4, 4, 256) * scale1
     # cat_prob_x = cat.marginal(0, quad_axis)  # This is the q quadrature
     # cat_prob_p = cat.marginal(0, quad_axis, phi=np.pi / 2)  # This is the p quadrature
-    return quad_axis, scale1
+    return (quad_axis,)
 
 
 @app.cell
@@ -78,11 +50,12 @@ def _(cm, mpl, np, pi, plt, quad_axis, sf):
     prog_gkp = sf.Program(1)
     with prog_gkp.context as q:
         sf.ops.GKP(epsilon=epsilon) | q
-        sf.ops.Sgate(0.0, 0.5*pi) | q
-        # sf.ops.LossChannel(0.85) | q
-    
+        sf.ops.Sgate(1.05, 0.25*pi) | q
+        sf.ops.Rgate(-0.125*pi) | q
+        sf.ops.LossChannel(0.85) | q
+
     eng = sf.Engine("bosonic")
-    gkp = eng.run(prog_gkp).state
+    gkp = eng.run(prog_gkp, shots=1).state
 
     Wgkp = gkp.wigner(mode=0, xvec=quad_axis, pvec=quad_axis)
     scale = np.max(Wgkp.real)
@@ -93,7 +66,7 @@ def _(cm, mpl, np, pi, plt, quad_axis, sf):
     plt.ylabel(r"p (units of $\sqrt{\hbar}$)", fontsize=15)
     plt.tight_layout()
     plt.show()
-    return Wgkp, eng, epsilon, gkp, nrm, prog_gkp, q, scale
+    return
 
 
 @app.cell

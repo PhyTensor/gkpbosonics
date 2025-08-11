@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.12.9"
+__generated_with = "0.13.15"
 app = marimo.App(width="medium")
 
 
@@ -14,14 +14,14 @@ def _():
 def _(mo):
     mo.md(
         r"""
-        # GKP States
+    # GKP States
 
-        ## GKP States as Qubits
+    ## GKP States as Qubits
 
-        GKP states can be understood as superpositions of multiple squeezed states. They are examples of non-Gaussian states.
+    GKP states can be understood as superpositions of multiple squeezed states. They are examples of non-Gaussian states.
 
-        GKP states are used as a means for encoding a qubit in a photonic mode - forming a GKP qubit. This presents us with a universal set of qubit gates and measurements that can be applied using already familiar Gaussian gates and measurements.
-        """
+    GKP states are used as a means for encoding a qubit in a photonic mode - forming a GKP qubit. This presents us with a universal set of qubit gates and measurements that can be applied using already familiar Gaussian gates and measurements.
+    """
     )
     return
 
@@ -64,20 +64,20 @@ def _(np):
 def _(mo):
     mo.md(
         r"""
-        ## Ideal GKP Qubits
+    ## Ideal GKP Qubits
 
-        For GKP encoding, the Wigner function of the idea GKP qubit $|0\rangle_{gkp}$ state consists of a linear combination of Dirac delta functions centered at half-integer multiples of $\sqrt{\pi\hbar}$ in phase space (ref: Encoding a qubit in an oscillator).
+    For GKP encoding, the Wigner function of the idea GKP qubit $|0\rangle_{gkp}$ state consists of a linear combination of Dirac delta functions centered at half-integer multiples of $\sqrt{\pi\hbar}$ in phase space (ref: Encoding a qubit in an oscillator).
 
-        $$
-        W^{0}_{gkp} (q, p) = \sum^{\infty}_{s,t=-\infty} (-1)^{st} \delta(p - \frac{s\sqrt{\pi\hbar}}{2}) \delta(q - t\sqrt{\pi\hbar})
-        $$
+    $$
+    W^{0}_{gkp} (q, p) = \sum^{\infty}_{s,t=-\infty} (-1)^{st} \delta(p - \frac{s\sqrt{\pi\hbar}}{2}) \delta(q - t\sqrt{\pi\hbar})
+    $$
 
-        The GKP qubit $|1\rangle_{gkp}$ state can be obtained by shifting the $|0\rangle_{gkp}$ state by $\sqrt{\pi\hbar}$ in the position qudrature.
+    The GKP qubit $|1\rangle_{gkp}$ state can be obtained by shifting the $|0\rangle_{gkp}$ state by $\sqrt{\pi\hbar}$ in the position qudrature.
 
-        ### Visualisation of Ideal GKP qubit
+    ### Visualisation of Ideal GKP qubit
 
-        Visulisation of ideal GKP $|0\rangle_{gkp}$ and $|1\rangle_{gkp}$ states in phase space.
-        """
+    Visulisation of ideal GKP $|0\rangle_{gkp}$ and $|1\rangle_{gkp}$ states in phase space.
+    """
     )
     return
 
@@ -143,48 +143,32 @@ def _(Engine, Program, np, ops, plt, sf):
         ax[i].set_xlabel(r"$q$ (units of $\sqrt{\pi\hbar}$ )", fontsize=9)
         ax[i].set_aspect("equal")
 
-    ax[0].set_title(r"$|0\rangle_{\rm gkp}$ Wigner function", fontsize=11)
-    ax[1].set_title(r"$|1\rangle_{\rm gkp}$ Wigner function", fontsize=11)
+    ax[0].set_title(r"$|0\rangle_{\rm gkp}$", fontsize=11)
+    ax[1].set_title(r"$|1\rangle_{\rm gkp}$", fontsize=11)
     ax[0].set_ylabel(r"$p$ (units of $\sqrt{\pi\hbar}$ )", fontsize=9)
     fig.tight_layout()
     plt.show()
-    return (
-        ax,
-        circuit,
-        delta_sign_0,
-        delta_sign_1,
-        engine,
-        fig,
-        gkp_0,
-        gkp_1,
-        i,
-        p_coords_0,
-        p_coords_1,
-        q,
-        q_coords_0,
-        q_coords_1,
-        scale,
-    )
+    return (scale,)
 
 
 @app.cell
 def _(mo):
     mo.md(
         r"""
-        ## Finite-energy GKP states
+    ## Finite-energy GKP states
 
-        For the finite-energy GKP states, where their WIgner functions are expressed as linear combinations of Gaussian function; the Gaussian peaks, the variance, the location shift and the damping of the weights all depend on the finite-energy parameter $\epsilon$.
+    For the finite-energy GKP states, where their WIgner functions are expressed as linear combinations of Gaussian function; the Gaussian peaks, the variance, the location shift and the damping of the weights all depend on the finite-energy parameter $\epsilon$.
 
-        The weights govern how large the Wigner function gets.
+    The weights govern how large the Wigner function gets.
 
-        Visualising how the Wigner function changes as we cary $\epsilon$:
-        """
+    Visualising how the Wigner function changes as we cary $\epsilon$:
+    """
     )
     return
 
 
 @app.cell
-def _(ndarray, np, scale):
+def _(ndarray, np, scale: float):
     # Choose some values of epsilon
     epsilons: list = [0.0631, 0.1, 0.21, 0.31, 0.4]
 
@@ -196,7 +180,15 @@ def _(ndarray, np, scale):
 
 
 @app.cell
-def _(BaseBosonicState, Engine, Program, epsilons, ops, quad, wigners):
+def _(
+    BaseBosonicState,
+    Engine,
+    Program,
+    epsilons: list,
+    ops,
+    quad: "ndarray",
+    wigners,
+):
     for epsilon in epsilons:
         # Create a GKP |0> state
         circ: Program = Program(1)
@@ -210,11 +202,21 @@ def _(BaseBosonicState, Engine, Program, epsilons, ops, quad, wigners):
             # Calculate the Wigner function
             wigner = gkp.wigner(mode=0, xvec=quad, pvec=quad)
             wigners.append(wigner)
-    return circ, eng, epsilon, gkp, qq, wigner
+    return
 
 
 @app.cell
-def _(colorbar, colors, epsilons, linear2db, np, plt, quad, scale, wigners):
+def _(
+    colorbar,
+    colors,
+    epsilons: list,
+    linear2db,
+    np,
+    plt,
+    quad: "ndarray",
+    scale: float,
+    wigners,
+):
     # Plot the results
     fig2, axs = plt.subplots(
         1, 6, figsize=(16, 4), gridspec_kw={"width_ratios": [1, 1, 1, 1, 1, 0.05]}
@@ -245,17 +247,17 @@ def _(colorbar, colors, epsilons, linear2db, np, plt, quad, scale, wigners):
     cb1.set_label("Wigner function", fontsize=9)
     fig2.tight_layout()
     plt.show()
-    return axs, cb1, cmap, cmax, fig2, k, norm
+    return
 
 
 @app.cell
 def _(mo):
     mo.md(
         r"""
-        As $\epsilon$ increases, the variance of each peak increases, the peaks get closer and closer to the origin, and the weights drop exponentially away from the origin.
+    As $\epsilon$ increases, the variance of each peak increases, the peaks get closer and closer to the origin, and the weights drop exponentially away from the origin.
 
-        In the limit as $\epsilon \rightarrow \infty$, the Fock damping is so strong that we essentially get a vacuum state.
-        """
+    In the limit as $\epsilon \rightarrow \infty$, the Fock damping is so strong that we essentially get a vacuum state.
+    """
     )
     return
 

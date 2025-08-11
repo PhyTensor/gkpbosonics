@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.11.21"
+__generated_with = "0.13.15"
 app = marimo.App()
 
 
@@ -14,12 +14,12 @@ def _():
 def _(mo):
     mo.md(
         r"""
-        # GKP Error Correction - Single Mode
+    # GKP Error Correction - Single Mode
 
-        ## Key Noise Models
-        - Photon Loss -
-        - Dephasing - adds random phase shifts, modeled by $e^{i\delta \hat n}$, where $\delta$ is Gaussian noise.
-        """
+    ## Key Noise Models
+    - Photon Loss -
+    - Dephasing - adds random phase shifts, modeled by $e^{i\delta \hat n}$, where $\delta$ is Gaussian noise.
+    """
     )
     return
 
@@ -39,26 +39,12 @@ def _():
     import matplotlib.pyplot as plt
     from matplotlib import colors, colorbar
     return (
-        BSgate,
         BaseBosonicState,
-        CZgate,
-        Coherent,
         Dgate,
         Engine,
         GKP,
-        LossChannel,
-        MeasureHomodyne,
-        MeasureP,
-        MeasureX,
-        MeasuredParameter,
         Program,
-        RegRef,
         Result,
-        Squeezed,
-        Xgate,
-        Zgate,
-        colorbar,
-        colors,
         ndarray,
         np,
         pi,
@@ -90,11 +76,11 @@ def _():
     photon_loss_param: float = 0.85           # 15% photon loss
     shots: int = 1          # Number of trials
     noise_std = 0.81      # Standard deviation of displacement noise
-    return noise_std, photon_loss_param, shots, squeezing_param
+    return noise_std, shots, squeezing_param
 
 
 @app.cell
-def _(BaseBosonicState, Engine, Program, Result, shots):
+def _(BaseBosonicState, Engine, Program, Result, shots: int):
     def execute_gkp_circuit(engine: Engine, circuit: Program) -> BaseBosonicState:
         result: Result = engine.run(program=circuit, shots=shots)
         print(f"Result Samples: {result.samples}")
@@ -106,7 +92,7 @@ def _(BaseBosonicState, Engine, Program, Result, shots):
 
 
 @app.cell
-def _(Dgate, GKP, Program, noise_std, np, squeezing_param):
+def _(Dgate, GKP, Program, noise_std, np, squeezing_param: float):
     def create_gkp_circuit(qubit_state: list, epsilon: int, num_modes: int, noise_channel: bool = False, loss_parameter: float = 1.0) -> Program:
         # Initialize engine and program
         # Modes: data, ancilla_q, ancilla_p
@@ -121,12 +107,12 @@ def _(Dgate, GKP, Program, noise_std, np, squeezing_param):
             dp = np.random.normal(0, noise_std)
             # Create a total displacement magnitude (this is simplified)
             Dgate(np.sqrt(dx**2 + dp**2)) | q
-        
+
             # # Syndrome extraction (this example uses a measurement of x)
             # MeasureX | q
 
 
-        
+
             # GKP(epsilon=squeezing_param) | q[1]
             # GKP(state=[np.pi/2, 0], epsilon=epsilon) | q[0]
             # # Coherent(r=r, phi=phi) | q[0]
@@ -202,16 +188,16 @@ def _(
     Program,
     create_gkp_circuit,
     execute_gkp_circuit,
-    squeezing_param,
+    squeezing_param: float,
 ):
     circuit: Program = create_gkp_circuit([], squeezing_param, 1)
     engine: Engine = Engine("bosonic")
     gkp_state: BaseBosonicState = execute_gkp_circuit(engine, circuit)
-    return circuit, engine, gkp_state
+    return (gkp_state,)
 
 
 @app.cell
-def _(BaseBosonicState, ndarray, np, plt, scale, sf):
+def _(BaseBosonicState, ndarray, np, plt, scale: float, sf):
     def calculate_and_plot_marginals(state: BaseBosonicState, mode: int) -> None:
         """
         Calculates and plot the q, q-p, and p quadrature marginal distributions for a given circuit mode. These can be used to determine the Pauli  X, Y, and Z outcomes for a GKP qubit.
@@ -274,7 +260,7 @@ def _(BaseBosonicState, ndarray, np, plt, scale, sf):
 
 
 @app.cell
-def _(calculate_and_plot_marginals, gkp_state):
+def _(calculate_and_plot_marginals, gkp_state: "BaseBosonicState"):
     calculate_and_plot_marginals(gkp_state, 0)
     return
 

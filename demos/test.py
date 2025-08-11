@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.12.9"
+__generated_with = "0.13.15"
 app = marimo.App(width="medium")
 
 
@@ -47,41 +47,7 @@ def _():
 
     # set the random seed
     np.random.seed(42)
-    return (
-        Axes3D,
-        BSgate,
-        BaseBosonicState,
-        CXgate,
-        Coherent,
-        Dgate,
-        Engine,
-        Fock,
-        GKP,
-        LossChannel,
-        MeasureFock,
-        MeasureHomodyne,
-        MeasureP,
-        MeasureX,
-        Program,
-        Result,
-        Rgate,
-        S2gate,
-        Squeezed,
-        Xgate,
-        Zgate,
-        cm,
-        colorbar,
-        colors,
-        mpl,
-        ndarray,
-        np,
-        ops,
-        pi,
-        plt,
-        random,
-        sf,
-        sqrt,
-    )
+    return Engine, Program, ndarray, np, ops, plt, sf
 
 
 @app.cell
@@ -369,7 +335,7 @@ def _(np, plt, sf):
         """Plot Wigner function using matplotlib"""
         fig, ax = plt.subplots()
         cont = ax.contourf(xvec, xvec, W, 100, cmap="RdBu_r")
-        ax.set_title(title)
+        # ax.set_title(title)
         ax.set_xlabel("q")
         ax.set_ylabel("p")
         fig.colorbar(cont)
@@ -425,21 +391,7 @@ def _(np, plt, sf):
     state_gkp = eng.run(prog).state
     W_compensated = get_wigner(state_gkp, mode=0)
     plot_wigner(W_compensated, f"After Loss + Amplification (Gain = {gain:.2f})")
-    return (
-        W_compensated,
-        eng,
-        epsilon,
-        eta,
-        gain,
-        get_wigner,
-        plot_wigner,
-        prog,
-        q,
-        qubit_state,
-        r,
-        state_gkp,
-        xvec,
-    )
+    return epsilon, state_gkp
 
 
 @app.cell
@@ -464,7 +416,7 @@ def _():
 
 
 @app.cell
-def _(Engine, Program, ops, shots):
+def _(Engine, Program, ops, shots: int):
     # Run the program again, collecting q samples this time
     circuit_gkp_x = Program(1)
     with circuit_gkp_x.context as qx:
@@ -481,16 +433,7 @@ def _(Engine, Program, ops, shots):
         ops.MeasureP | qp
     eng_p = Engine("bosonic")
     gkp_samples_p = eng_p.run(circuit_gkp_p, shots=shots).samples[:, 0]
-    return (
-        circuit_gkp_p,
-        circuit_gkp_x,
-        eng_p,
-        eng_x,
-        gkp_samples_p,
-        gkp_samples_x,
-        qp,
-        qx,
-    )
+    return gkp_samples_p, gkp_samples_x
 
 
 @app.cell
@@ -502,15 +445,15 @@ def _(np):
 
 @app.cell
 def _(
-    epsilon,
-    gkp_prob_p,
-    gkp_prob_x,
+    epsilon: float,
+    gkp_prob_p: "ndarray",
+    gkp_prob_x: "ndarray",
     gkp_samples_p,
     gkp_samples_x,
     linear2db,
     plt,
-    quad_axis,
-    scale,
+    quad_axis: "ndarray",
+    scale: float,
 ):
     # Plot the results
     fig, axs = plt.subplots(1, 2, figsize=(12, 5))
@@ -533,7 +476,7 @@ def _(
     axs[0].grid(True, linestyle='--', alpha=0.2)
     axs[1].grid(True, linestyle='--', alpha=0.2)
     plt.show()
-    return axs, fig
+    return
 
 
 if __name__ == "__main__":

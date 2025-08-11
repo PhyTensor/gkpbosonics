@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.11.21"
+__generated_with = "0.13.15"
 app = marimo.App(width="medium")
 
 
@@ -14,12 +14,12 @@ def _():
 def _(mo):
     mo.md(
         r"""
-        # GKP Qubits
+    # GKP Qubits
 
-        ## Introduction
+    ## Introduction
 
-        Gottesman-Kitaev-Preskill (GKP) qubits represent a promising avenue for encoding quantum information within continuous variable systems, offering potential advantages in fault-tolerant quantum computation . These qubits, based on encoding in the infinite-dimensional Hilbert space of a harmonic oscillator, exhibit unique properties and are susceptible to various noise sources prevalent in physical implementations . Understanding the impact of such noise and developing effective error correction strategies are crucial for realizing the full potential of GKP qubits in practical quantum computing architectures . This report analyzes the realistic effects of noise on GKP qubits and explores modeling strategies for quantum error correction using Xanadu's StrawberryFields Python library.
-        """
+    Gottesman-Kitaev-Preskill (GKP) qubits represent a promising avenue for encoding quantum information within continuous variable systems, offering potential advantages in fault-tolerant quantum computation . These qubits, based on encoding in the infinite-dimensional Hilbert space of a harmonic oscillator, exhibit unique properties and are susceptible to various noise sources prevalent in physical implementations . Understanding the impact of such noise and developing effective error correction strategies are crucial for realizing the full potential of GKP qubits in practical quantum computing architectures . This report analyzes the realistic effects of noise on GKP qubits and explores modeling strategies for quantum error correction using Xanadu's StrawberryFields Python library.
+    """
     )
     return
 
@@ -28,14 +28,14 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        ## Realistic Effects of Noise on GKP Qubits
+    ## Realistic Effects of Noise on GKP Qubits
 
-        Quantum states, including those of GKP qubits, are inherently fragile and susceptible to environmental noise, which can compromise their coherence and lead to computational errors . Noise affecting qubits can arise from various sources, such as control electronics, thermal fluctuations, or impurities in the qubit material.
+    Quantum states, including those of GKP qubits, are inherently fragile and susceptible to environmental noise, which can compromise their coherence and lead to computational errors . Noise affecting qubits can arise from various sources, such as control electronics, thermal fluctuations, or impurities in the qubit material.
 
-        A distinction is often made between Gaussian and non-Gaussian noise. Gaussian noise is typically characterized as a collection of random disruptions from numerous sources, often exhibiting a symmetrical bell curve distribution. In contrast, non-Gaussian noise features distinctive patterns stemming from a few dominant noise sources and can exhibit more complex temporal correlations. While tools exist to detect and analyze both types of noise, the impact on qubit coherence can be significant, potentially leading to serious computing errors .   
+    A distinction is often made between Gaussian and non-Gaussian noise. Gaussian noise is typically characterized as a collection of random disruptions from numerous sources, often exhibiting a symmetrical bell curve distribution. In contrast, non-Gaussian noise features distinctive patterns stemming from a few dominant noise sources and can exhibit more complex temporal correlations. While tools exist to detect and analyze both types of noise, the impact on qubit coherence can be significant, potentially leading to serious computing errors .   
 
-        For GKP qubits, common noise models include **loss** and **displacement** in phase space . Loss, or dissipation, represents the leakage of energy from the system to the environment, often resulting in photons being lost from the quantum mode. Displacement noise involves shifts in the position and momentum quadratures of the qubit's state in phase space . To illustrate these effects, simulations using StrawberryFields' bosonic backend can be performed. This backend is particularly suited for simulating states that can be represented as linear combinations of Gaussian functions in phase space, which includes GKP states .
-        """
+    For GKP qubits, common noise models include **loss** and **displacement** in phase space . Loss, or dissipation, represents the leakage of energy from the system to the environment, often resulting in photons being lost from the quantum mode. Displacement noise involves shifts in the position and momentum quadratures of the qubit's state in phase space . To illustrate these effects, simulations using StrawberryFields' bosonic backend can be performed. This backend is particularly suited for simulating states that can be represented as linear combinations of Gaussian functions in phase space, which includes GKP states .
+    """
     )
     return
 
@@ -44,33 +44,14 @@ def _(mo):
 def _(mo):
     mo.md(
         """
-        The stabilizers of the GKP code are generated by the displacement operators $S_{\hat q} = \hat D(2\sqrt\pi)$ and $S_{\hat p} = {\hat D(i2\sqrt\pi)}$, where the displacement operator is defined as:
+    The stabilizers of the GKP code are generated by the displacement operators $S_{\hat q} = \hat D(2\sqrt\pi)$ and $S_{\hat p} = {\hat D(i2\sqrt\pi)}$, where the displacement operator is defined as:
 
-        $$
-        \hat{D} (a) = e^{a\hat a^\dagger - a^*\hat a}
-        $$
+    $$
+    \hat{D} (a) = e^{a\hat a^\dagger - a^*\hat a}
+    $$
 
-        For real $a$, 
-        """
-    )
-    return
-
-
-@app.cell
-def _(mo):
-    mo.md(
-        r"""
-        # Quantum Error Correction Strategies for GKP Qubits
-
-        ## Concatenation with Discrete Variable Codes
-
-        One prominent approach involves concatenating the GKP code (as the inner bosonic code) with an outer error-correcting code based on discrete variable qubits, such as the surface code or the XZZX code . The GKP code in this context serves to discretize the continuous noise affecting the bosonic system, effectively mapping it to errors that can be handled by the outer qubit code . This concatenation strategy has demonstrated improved fault-tolerance thresholds under noise models like the isotropic Gaussian displacement channel . By leveraging the strengths of GKP encoding for handling continuous errors and the robust error correction capabilities of qubit codes for discrete errors, this approach offers a promising pathway towards fault-tolerant quantum computation with continuous variables.
-
-        ## Stabilizer-Based Error Correction for GKP Qubits
-
-        GKP states are defined as the simultaneous +1 eigenstates of a specific set of stabilizer operators, which are related to displacements by the lattice constants of the GKP code in phase space . Error correction can be achieved by performing measurements of these stabilizer operators. The outcomes of these measurements, known as the error syndrome, provide information about the errors that have occurred without revealing the encoded quantum information. Based on the measured syndrome, appropriate corrective displacements can then be applied to the qubit to restore its state . Stabilizer codes provide a powerful framework for quantum error correction by defining a protected subspace of the Hilbert space where the encoded information is resilient to certain types of errors.
-
-        """
+    For real $a$,
+    """
     )
     return
 
@@ -79,18 +60,36 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        ## Simulating Advanced GKP Error Correction Circuits
+    # Quantum Error Correction Strategies for GKP Qubits
 
-        Simulating more sophisticated GKP error correction protocols, such as those based on stabilizer measurements and feedforward control, demands a deeper understanding of the specific error correction code and how it can be implemented using the Gaussian gates and measurements available in StrawberryFields' bosonic backend .
+    ## Concatenation with Discrete Variable Codes
 
-        This backend supports essential Gaussian operations like beamsplitters, displacements, and homodyne measurements, which are fundamental building blocks for many GKP error correction circuits . 
+    One prominent approach involves concatenating the GKP code (as the inner bosonic code) with an outer error-correcting code based on discrete variable qubits, such as the surface code or the XZZX code . The GKP code in this context serves to discretize the continuous noise affecting the bosonic system, effectively mapping it to errors that can be handled by the outer qubit code . This concatenation strategy has demonstrated improved fault-tolerance thresholds under noise models like the isotropic Gaussian displacement channel . By leveraging the strengths of GKP encoding for handling continuous errors and the robust error correction capabilities of qubit codes for discrete errors, this approach offers a promising pathway towards fault-tolerant quantum computation with continuous variables.
 
-        For instance, some GKP error correction schemes involve entangling the data qubit with ancillary GKP qubits, performing homodyne measurements on the ancillae, and then applying a conditional displacement to the data qubit based on the measurement outcomes . 
+    ## Stabilizer-Based Error Correction for GKP Qubits
 
-        Exploring the tutorials and examples provided by Xanadu for the bosonic backend, especially those focusing on GKP states and gate teleportation (which shares similarities with some error correction circuits), would be invaluable for developing simulations of these advanced error correction techniques . 
+    GKP states are defined as the simultaneous +1 eigenstates of a specific set of stabilizer operators, which are related to displacements by the lattice constants of the GKP code in phase space . Error correction can be achieved by performing measurements of these stabilizer operators. The outcomes of these measurements, known as the error syndrome, provide information about the errors that have occurred without revealing the encoded quantum information. Based on the measured syndrome, appropriate corrective displacements can then be applied to the qubit to restore its state . Stabilizer codes provide a powerful framework for quantum error correction by defining a protected subspace of the Hilbert space where the encoded information is resilient to certain types of errors.
+    """
+    )
+    return
 
-        However, it is important to note that implementing and simulating complex error correction protocols for GKP qubits in StrawberryFields can be a significant undertaking, requiring both a strong theoretical understanding of the error correction code and practical expertise in utilizing the software's capabilities.
-        """
+
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    ## Simulating Advanced GKP Error Correction Circuits
+
+    Simulating more sophisticated GKP error correction protocols, such as those based on stabilizer measurements and feedforward control, demands a deeper understanding of the specific error correction code and how it can be implemented using the Gaussian gates and measurements available in StrawberryFields' bosonic backend .
+
+    This backend supports essential Gaussian operations like beamsplitters, displacements, and homodyne measurements, which are fundamental building blocks for many GKP error correction circuits . 
+
+    For instance, some GKP error correction schemes involve entangling the data qubit with ancillary GKP qubits, performing homodyne measurements on the ancillae, and then applying a conditional displacement to the data qubit based on the measurement outcomes . 
+
+    Exploring the tutorials and examples provided by Xanadu for the bosonic backend, especially those focusing on GKP states and gate teleportation (which shares similarities with some error correction circuits), would be invaluable for developing simulations of these advanced error correction techniques . 
+
+    However, it is important to note that implementing and simulating complex error correction protocols for GKP qubits in StrawberryFields can be a significant undertaking, requiring both a strong theoretical understanding of the error correction code and practical expertise in utilizing the software's capabilities.
+    """
     )
     return
 

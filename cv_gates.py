@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.11.17"
+__generated_with = "0.13.15"
 app = marimo.App(width="medium")
 
 
@@ -14,12 +14,12 @@ def _():
 def _(mo):
     mo.md(
         """
-        # Gates
+    # Gates
 
-        CVQC uses qumodes that represent bundles of interacting photons. Gaussian and non-Gaussian gates are used to perform computations on qumodes.
+    CVQC uses qumodes that represent bundles of interacting photons. Gaussian and non-Gaussian gates are used to perform computations on qumodes.
 
-        Gaussian and non-Gaussian gates can be descrribed within phase space. Gaussian gates act linearly on modes. These gates can only reach positive quasi-probability distributions and can be classically simulated. However, non-Gaussian gates act nonlinearly, allowing them to be in negative probability distributions and thus cannot be classically simulated.
-        """
+    Gaussian and non-Gaussian gates can be descrribed within phase space. Gaussian gates act linearly on modes. These gates can only reach positive quasi-probability distributions and can be classically simulated. However, non-Gaussian gates act nonlinearly, allowing them to be in negative probability distributions and thus cannot be classically simulated.
+    """
     )
     return
 
@@ -28,18 +28,18 @@ def _(mo):
 def _(mo):
     mo.md(
         """
-        ## Single-Qubit Clifford Gates
+    ## Single-Qubit Clifford Gates
 
-        The association between GKP single-qubit CLifford gates and qubits is:
+    The association between GKP single-qubit CLifford gates and qubits is:
 
-        Pauli X - corresponds to $q$-displacement by $\sqrt{\pi\hbar}$
+    Pauli X - corresponds to $q$-displacement by $\sqrt{\pi\hbar}$
 
-        Pauli Z - corresponds to $p$-displacement by $\sqrt{\pi\hbar}$
+    Pauli Z - corresponds to $p$-displacement by $\sqrt{\pi\hbar}$
 
-        Hadamard - corresponds to Rotation by $\pi/2$
+    Hadamard - corresponds to Rotation by $\pi/2$
 
-        Phase - corresponds to Quadratic phase gate of strength 1
-        """
+    Phase - corresponds to Quadratic phase gate of strength 1
+    """
     )
     return
 
@@ -55,18 +55,7 @@ def _():
 
     import matplotlib.pyplot as plt
     from matplotlib import colors, colorbar
-    return (
-        BaseBosonicState,
-        Engine,
-        Program,
-        colorbar,
-        colors,
-        ndarray,
-        np,
-        ops,
-        plt,
-        sf,
-    )
+    return BaseBosonicState, Engine, Program, ndarray, np, ops, plt, sf
 
 
 @app.cell
@@ -79,11 +68,11 @@ def _(np, sf):
     # angles theta and phi specify the qubit state
     state_plus: list = [np.pi / 2, 0]
     epsilon: float = 0.0631
-    return epsilon, scale, state_plus
+    return epsilon, scale
 
 
 @app.cell
-def _(BaseBosonicState, ndarray, np, plt, scale, sf):
+def _(BaseBosonicState, ndarray, np, plt, scale: float, sf):
     def calculate_and_plot_marginals(state: BaseBosonicState, mode: int) -> None:
         """
         Calculates and plot the q, q-p, and p quadrature marginal distributions for a given circuit mode. These can be used to determine the Pauli  X, Y, and Z outcomes for a GKP qubit.
@@ -148,18 +137,18 @@ def _(BaseBosonicState, ndarray, np, plt, scale, sf):
 def _(mo):
     mo.md(
         r"""
-        ### Qubit Pauli X and Z gates: CV $q$ and $p$ displacements
+    ### Qubit Pauli X and Z gates: CV $q$ and $p$ displacements
 
-        Pauli X and Z gates in GKP encoding correspond to displacements in phase space by $\sqrt{\pi\hbar}$ along $q$ and $p$ respectively.
+    Pauli X and Z gates in GKP encoding correspond to displacements in phase space by $\sqrt{\pi\hbar}$ along $q$ and $p$ respectively.
 
-        Below, we take a GKP qubit with $\theta = \phi = \pi/4$ and plot its marginal distributions along $p$, $q−p$, and $q$ before and after applying a bit-phase flip. Recall that, once binned, this data provides the outcome of the Pauli measurements: blue (red) bins correspond to Pauli +1(-1) eigenvalues.
-        """
+    Below, we take a GKP qubit with $\theta = \phi = \pi/4$ and plot its marginal distributions along $p$, $q−p$, and $q$ before and after applying a bit-phase flip. Recall that, once binned, this data provides the outcome of the Pauli measurements: blue (red) bins correspond to Pauli +1(-1) eigenvalues.
+    """
     )
     return
 
 
 @app.cell
-def _(BaseBosonicState, Engine, Program, epsilon, ops):
+def _(BaseBosonicState, Engine, Program, epsilon: float, ops):
     def create_gkp_state(state: list) -> BaseBosonicState:
         circuit: Program = Program(1)
 
@@ -181,14 +170,20 @@ def _(BaseBosonicState, create_gkp_state, np):
 
 
 @app.cell
-def _(calculate_and_plot_marginals, gkp0):
+def _(gkp0: "BaseBosonicState"):
+    gkp0.fidelity_vacuum()
+    return
+
+
+@app.cell
+def _(calculate_and_plot_marginals, gkp0: "BaseBosonicState"):
     # Calcuate and plot marginals
     calculate_and_plot_marginals(gkp0, 0)
     return
 
 
 @app.cell
-def _(BaseBosonicState, Engine, Program, epsilon, ops, scale):
+def _(BaseBosonicState, Engine, Program, epsilon: float, ops, scale: float):
     def create_gkp_state_bitphase_flip(state: list) -> BaseBosonicState:
         circuit: Program = Program(1)
 
@@ -204,14 +199,14 @@ def _(BaseBosonicState, Engine, Program, epsilon, ops, scale):
 
 
 @app.cell
-def _(BaseBosonicState, create_gkp_state_bitphase_flip, state):
+def _(BaseBosonicState, create_gkp_state_bitphase_flip, state: list):
     # Create GKP state with applied bit-phase flip
     gkp1: BaseBosonicState = create_gkp_state_bitphase_flip(state)
     return (gkp1,)
 
 
 @app.cell
-def _(calculate_and_plot_marginals, gkp1):
+def _(calculate_and_plot_marginals, gkp1: "BaseBosonicState"):
     # Calcuate and plot marginals
     calculate_and_plot_marginals(gkp1, 0)
     return
@@ -221,12 +216,12 @@ def _(calculate_and_plot_marginals, gkp1):
 def _(mo):
     mo.md(
         r"""
-        For $q$ and $p$, regions of the distributions originally in the +1 (blue) bins get shifted to -1 (red) bins and vice versa.
+    For $q$ and $p$, regions of the distributions originally in the +1 (blue) bins get shifted to -1 (red) bins and vice versa.
 
-        The distribution of $q-p$ remains unchanged.
+    The distribution of $q-p$ remains unchanged.
 
-        The probabilities of +1 and -1 outcomes from Pauli X and Z measurements get swapped by the bit-phase flip, while Pauli Y in invariant.
-        """
+    The probabilities of +1 and -1 outcomes from Pauli X and Z measurements get swapped by the bit-phase flip, while Pauli Y in invariant.
+    """
     )
     return
 
@@ -235,16 +230,16 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        ### Qubit Hadamard gate: CV rotation
+    ### Qubit Hadamard gate: CV rotation
 
-        The GKP Hadamard gate can be implemented by a $\pi/2$ rotation in phase space.
-        """
+    The GKP Hadamard gate can be implemented by a $\pi/2$ rotation in phase space.
+    """
     )
     return
 
 
 @app.cell
-def _(BaseBosonicState, Engine, Program, epsilon, ops):
+def _(BaseBosonicState, Engine, Program, epsilon: float, ops):
     def create_gkp_state_rotated(state: list, theta) -> BaseBosonicState:
         circuit: Program = Program(1)
 
@@ -264,11 +259,11 @@ def _(BaseBosonicState, create_gkp_state_rotated, np):
     theta2: float = np.pi/2
     state2: list = [np.pi/2, np.pi/2]
     gkp2: BaseBosonicState = create_gkp_state_rotated(state2, theta2)
-    return gkp2, state2, theta2
+    return (gkp2,)
 
 
 @app.cell
-def _(calculate_and_plot_marginals, gkp2):
+def _(calculate_and_plot_marginals, gkp2: "BaseBosonicState"):
     # Calcuate and plot marginals
     calculate_and_plot_marginals(gkp2, 0)
     return
@@ -278,12 +273,12 @@ def _(calculate_and_plot_marginals, gkp2):
 def _(mo):
     mo.md(
         r"""
-        ### Qubit Phase gate: CV Quadratic phase gate
+    ### Qubit Phase gate: CV Quadratic phase gate
 
-        The GKP phase gate maps to the CV Quadratic gate.
+    The GKP phase gate maps to the CV Quadratic gate.
 
-        This is a Gaussian operation, but unlike rotations, the CV phase gate requires a squeezing operation.
-        """
+    This is a Gaussian operation, but unlike rotations, the CV phase gate requires a squeezing operation.
+    """
     )
     return
 

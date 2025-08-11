@@ -1,13 +1,13 @@
 import marimo
 
-__generated_with = "0.12.9"
+__generated_with = "0.13.15"
 app = marimo.App(width="medium")
 
 
 @app.cell
 def _():
     import marimo as mo
-    return (mo,)
+    return
 
 
 @app.cell
@@ -23,23 +23,7 @@ def _():
     from strawberryfields import hbar, Program, ops, Engine, Result
     from strawberryfields.ops import LossChannel
     from strawberryfields.backends import BaseBosonicState
-    return (
-        BaseBosonicState,
-        Engine,
-        LossChannel,
-        Program,
-        Result,
-        cm,
-        colorbar,
-        colors,
-        hbar,
-        mpl,
-        ndarray,
-        np,
-        ops,
-        plt,
-        sf,
-    )
+    return np, plt, sf
 
 
 @app.cell
@@ -70,7 +54,7 @@ def _(np, sf):
         prog = sf.Program(1)
 
         with prog.context as q:
-            sf.ops.GKP(shape='square') | q
+            sf.ops.GKP(shape="square") | q
             sf.ops.Xgate(np.sqrt(np.pi * sf.hbar)) | q
 
         return prog
@@ -80,12 +64,12 @@ def _(np, sf):
 @app.cell
 def _(sf):
     eng = sf.Engine("bosonic")
-    shots: int = 1 # 2000  # Number of samples
+    shots: int = 1  # 2000  # Number of samples
     return eng, shots
 
 
 @app.cell
-def _(create_gkp_0, create_gkp_1, eng, shots):
+def _(create_gkp_0, create_gkp_1, eng, shots: int):
     circuit_gkp_0 = create_gkp_0()
     circuit_gkp_1 = create_gkp_1()
 
@@ -94,7 +78,7 @@ def _(create_gkp_0, create_gkp_1, eng, shots):
 
     gkp_0 = results_0.state
     gkp_1 = results_1.state
-    return circuit_gkp_0, circuit_gkp_1, gkp_0, gkp_1, results_0, results_1
+    return gkp_0, gkp_1
 
 
 @app.cell
@@ -110,41 +94,40 @@ def _(gkp_0, gkp_1, np, plt, scale):
     delta_sign_1 = np.sign(gkp_1.weights().real)
 
     # Plot the locations and signs of the deltas
-    fig,ax = plt.subplots(1, 2, figsize=(10, 6))
+    fig, ax = plt.subplots(1, 2, figsize=(10, 6))
 
-    ax[0].scatter(q_coords_0 / scale,
-               p_coords_0 / scale,
-               c=delta_sign_0,
-               cmap=plt.cm.RdBu, vmin=-1.5, vmax=1.5)
+    ax[0].scatter(
+        q_coords_0 / scale,
+        p_coords_0 / scale,
+        c=delta_sign_0,
+        cmap=plt.cm.RdBu,
+        vmin=-1.5,
+        vmax=1.5,
+    )
 
-    ax[1].scatter(q_coords_1 / scale,
-               p_coords_1 / scale,
-               c=delta_sign_0,
-               cmap=plt.cm.RdBu, vmin=-1.5, vmax=1.5)
+    ax[1].scatter(
+        q_coords_1 / scale,
+        p_coords_1 / scale,
+        c=delta_sign_0,
+        cmap=plt.cm.RdBu,
+        vmin=-1.5,
+        vmax=1.5,
+    )
 
     for i in range(2):
         ax[i].set_xlim(-4.5, 4.5)
         ax[i].set_ylim(-4.5, 4.5)
-        ax[i].set_xlabel(r'$q$ (units of $\sqrt{\pi\hbar}$ )', fontsize=9)
+        ax[i].set_xlabel(r"$q$ (units of $\sqrt{\pi\hbar}$ )", fontsize=9)
         ax[i].set_aspect("equal")
 
-    ax[0].set_title(r'$|0\rangle_{\rm gkp}$ Wigner function', fontsize=11)
-    ax[1].set_title(r'$|1\rangle_{\rm gkp}$ Wigner function', fontsize=11)
-    ax[0].set_ylabel(r'$p$ (units of $\sqrt{\pi\hbar}$ )', fontsize=9)
+    ax[0].set_title(r"$|0\rangle_{\rm gkp}$", fontsize=11)
+    ax[1].set_title(r"$|1\rangle_{\rm gkp}$", fontsize=11)
+    ax[0].set_ylabel(r"$p$ (units of $\sqrt{\pi\hbar}$ )", fontsize=9)
 
     fig.tight_layout()
+    plt.savefig("ideal_gkp_state_wigner", dpi=300)
     plt.show()
-    return (
-        ax,
-        delta_sign_0,
-        delta_sign_1,
-        fig,
-        i,
-        p_coords_0,
-        p_coords_1,
-        q_coords_0,
-        q_coords_1,
-    )
+    return
 
 
 if __name__ == "__main__":

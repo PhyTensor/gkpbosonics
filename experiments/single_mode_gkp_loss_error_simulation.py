@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.12.9"
+__generated_with = "0.13.15"
 app = marimo.App(width="medium")
 
 
@@ -14,10 +14,10 @@ def _():
 def _(mo):
     mo.md(
         r"""
-        # Simulating Loss on a Single-Mode GKP Qubit
+    # Simulating Loss on a Single-Mode GKP Qubit
 
-        Loss can be modeled in StrawberryFields using the `LossChannel` operation . This operation simulates the coupling of the qubit mode to a vacuum environment, effectively reducing the energy of the state based on a transmissivity parameter `T`, where a lower `T` indicates more loss.
-        """
+    Loss can be modeled in StrawberryFields using the `LossChannel` operation . This operation simulates the coupling of the qubit mode to a vacuum environment, effectively reducing the energy of the state based on a transmissivity parameter `T`, where a lower `T` indicates more loss.
+    """
     )
     return
 
@@ -49,11 +49,7 @@ def _():
     # set the random seed
     np.random.seed(42)
     return (
-        Axes3D,
-        BSgate,
         BaseBosonicState,
-        Coherent,
-        Dgate,
         Engine,
         GKP,
         LossChannel,
@@ -61,21 +57,14 @@ def _():
         MeasureX,
         Program,
         Result,
-        S2gate,
         Sgate,
-        Squeezed,
-        Xgate,
-        Zgate,
         cm,
-        colorbar,
-        colors,
         mpl,
         ndarray,
         np,
         pi,
         plt,
         sf,
-        sqrt,
     )
 
 
@@ -87,7 +76,7 @@ def _(np):
 
 
 @app.cell
-def _(basename, cm, mpl, ndarray, np, plt):
+def _(basename: str, cm, mpl, ndarray, np, plt):
     def wigner_contour_plot(X: ndarray, P: ndarray, Z: ndarray) -> None:
         """
         """
@@ -102,11 +91,11 @@ def _(basename, cm, mpl, ndarray, np, plt):
         plt.tight_layout()
         plt.savefig(fname=basename+plotname, dpi=300)
         plt.show()
-    return (wigner_contour_plot,)
+    return
 
 
 @app.cell
-def _(basename, ndarray, np, plt):
+def _(basename: str, ndarray, np, plt):
     def wigner_3d_plot(X: ndarray, P: ndarray, Z: ndarray) -> None:
         """
         """
@@ -122,7 +111,7 @@ def _(basename, ndarray, np, plt):
         plt.ylabel(r"p (units of $\sqrt{\hbar}$)", fontsize=9)
         plt.savefig(fname=basename+plotname, dpi=300)
         plt.show()
-    return (wigner_3d_plot,)
+    return
 
 
 @app.cell
@@ -155,11 +144,11 @@ def _(cm, mpl, np, plt):
 
         plt.tight_layout()
         plt.show()
-    return (wigner_combined_plot,)
+    return
 
 
 @app.cell
-def _(BaseBosonicState, basename, ndarray, np, plt, scale, sf):
+def _(BaseBosonicState, basename: str, ndarray, np, plt, scale: float, sf):
     def calculate_and_plot_marginals(state: BaseBosonicState, mode: int) -> None:
         """
         Calculates and plot the q, q-p, and p quadrature marginal distributions for a given circuit mode. These can be used to determine the Pauli  X, Y, and Z outcomes for a GKP qubit.
@@ -282,13 +271,18 @@ def _(mo):
 
 
 @app.cell
-def _(Program, create_gkp_circuit, epsilon, qubit_state_plus):
+def _(Program, create_gkp_circuit, epsilon: float, qubit_state_plus: list):
     circuit: Program = create_gkp_circuit(qubit_state_plus, epsilon, 1, True, 0.85)
     return (circuit,)
 
 
 @app.cell
-def _(BaseBosonicState, circuit, engine, execute_gkp_circuit):
+def _(
+    BaseBosonicState,
+    circuit: "Program",
+    engine: "Engine",
+    execute_gkp_circuit,
+):
     gkp_state: BaseBosonicState = execute_gkp_circuit(engine, circuit)
     return (gkp_state,)
 
@@ -300,7 +294,7 @@ def _(mo):
 
 
 @app.cell
-def _(calculate_and_plot_marginals, gkp_state):
+def _(calculate_and_plot_marginals, gkp_state: "BaseBosonicState"):
     calculate_and_plot_marginals(gkp_state, 0)
     return
 
@@ -318,13 +312,13 @@ def _(mo):
 
 
 @app.cell
-def _(ndarray, np, scale):
+def _(ndarray, np, scale: float):
     quad_axis: ndarray = np.linspace(-4, 4, 256) * scale
     return (quad_axis,)
 
 
 @app.cell
-def _(gkp_state, ndarray, np, quad_axis):
+def _(gkp_state: "BaseBosonicState", ndarray, np, quad_axis: "ndarray"):
     # Calculate the discretized marginal distribution of the specified mode along the x\cos\phi + p\sin\phi quadrature
     gkp_prob_x: ndarray = gkp_state.marginal(mode=0, xvec=quad_axis, phi=0)  # This is the q quadrature
     gkp_prob_p: ndarray = gkp_state.marginal(mode=0, xvec=quad_axis, phi=np.pi / 2)  # This is the p quadrature
@@ -358,7 +352,7 @@ def _():
 
 
 @app.cell
-def _(Engine, GKP, MeasureP, MeasureX, Program, epsilon):
+def _(Engine, GKP, MeasureP, MeasureX, Program, epsilon: float):
     shots: int = 1024  # Number of samples
 
     # Run the program again, collecting q samples this time
@@ -376,30 +370,21 @@ def _(Engine, GKP, MeasureP, MeasureX, Program, epsilon):
         MeasureP | qp
     eng = Engine("bosonic")
     gkp_samples_p = eng.run(circuit_gkp_p, shots=shots).samples[:, 0]
-    return (
-        circuit_gkp_p,
-        circuit_gkp_x,
-        eng,
-        gkp_samples_p,
-        gkp_samples_x,
-        qp,
-        qx,
-        shots,
-    )
+    return gkp_samples_p, gkp_samples_x
 
 
 @app.cell
 def _(
-    basename,
-    epsilon,
-    gkp_prob_p,
-    gkp_prob_x,
+    basename: str,
+    epsilon: float,
+    gkp_prob_p: "ndarray",
+    gkp_prob_x: "ndarray",
     gkp_samples_p,
     gkp_samples_x,
     linear2db,
     plt,
-    quad_axis,
-    scale,
+    quad_axis: "ndarray",
+    scale: float,
 ):
     # Plot the results
     fig, axs = plt.subplots(1, 2, figsize=(10, 5))
@@ -421,7 +406,7 @@ def _(
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(basename+"marginal_distr_comparison", dpi=300)
     plt.show()
-    return axs, fig
+    return
 
 
 @app.cell
