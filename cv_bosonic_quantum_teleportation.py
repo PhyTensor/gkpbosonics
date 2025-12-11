@@ -1,13 +1,13 @@
 import marimo
 
-__generated_with = "0.12.9"
+__generated_with = "0.13.15"
 app = marimo.App(width="medium")
 
 
 @app.cell
 def _():
     import marimo as mo
-    return (mo,)
+    return
 
 
 @app.cell
@@ -19,30 +19,33 @@ def _():
     from numpy import pi, sqrt
     from strawberryfields import Engine, Program, Result
     from strawberryfields.backends import BaseBosonicState
-    from strawberryfields.ops import (GKP, BSgate, Coherent, LossChannel,
-                                      MeasureP, MeasureX, Squeezed, Xgate,
-                                      Zgate, Dgate, S2gate)
+    from strawberryfields.ops import (
+        GKP,
+        BSgate,
+        Coherent,
+        LossChannel,
+        MeasureP,
+        MeasureX,
+        Squeezed,
+        Xgate,
+        Zgate,
+        Dgate,
+        S2gate,
+    )
 
     # set the random seed
     np.random.seed(42)
     return (
         BSgate,
         BaseBosonicState,
-        Coherent,
-        Dgate,
         Engine,
         GKP,
-        LossChannel,
         MeasureP,
         MeasureX,
         Program,
         Result,
-        S2gate,
-        Squeezed,
         Xgate,
         Zgate,
-        colorbar,
-        colors,
         np,
         pi,
         plt,
@@ -84,7 +87,7 @@ def _(pi, sf, sqrt):
     sf.hbar = 1
     scale: float = sqrt(sf.hbar * pi)
     gain = 1.0
-    return gain, scale
+    return (scale,)
 
 
 @app.cell
@@ -93,7 +96,7 @@ def _(np):
     r: float = np.abs(alpha)
     phi: float = np.angle(alpha)
     print(f"alpha: {alpha} \t r: {r} \t phi: {phi}")
-    return alpha, phi, r
+    return
 
 
 @app.cell
@@ -102,7 +105,7 @@ def _(BaseBosonicState, Engine, Program, Result):
         result: Result = engine.run(program=circuit)
         print(f"Result Samples: {result.samples}")
 
-        gkp_state: BaseBosonicState =result.state
+        gkp_state: BaseBosonicState = result.state
         print(f"Result State: {gkp_state}")
         return gkp_state
     return (execute_gkp_circuit,)
@@ -110,7 +113,9 @@ def _(BaseBosonicState, Engine, Program, Result):
 
 @app.cell
 def _(BSgate, GKP, MeasureP, MeasureX, Program, Xgate, Zgate, pi, sqrt):
-    def create_gkp_circuit(qubit_state: list, epsilon: int, num_modes: int) -> Program:
+    def create_gkp_circuit(
+        qubit_state: list, epsilon: int, num_modes: int
+    ) -> Program:
         circuit: Program = Program(num_subsystems=num_modes)
 
         with circuit.context as q:
@@ -124,7 +129,7 @@ def _(BSgate, GKP, MeasureP, MeasureX, Program, Xgate, Zgate, pi, sqrt):
             # S2gate(2) | (q[1], q[2])
 
             # apply gates
-            BS = BSgate(pi/4, pi)
+            BS = BSgate(pi / 4, pi)
             BS | (q[1], q[2])
             BS | (q[0], q[1])
 
@@ -173,21 +178,21 @@ def _():
 
 
 @app.cell
-def _(Program, create_gkp_circuit, epsilon):
+def _(Program, create_gkp_circuit, epsilon: float):
     circuit: Program = create_gkp_circuit([], epsilon, 3)
     return (circuit,)
 
 
 @app.cell
-def _(BaseBosonicState, Engine, circuit, execute_gkp_circuit):
+def _(BaseBosonicState, Engine, circuit: "Program", execute_gkp_circuit):
     engine: Engine = Engine("fock")
     gkp_state: BaseBosonicState = execute_gkp_circuit(engine, circuit)
     print(gkp_state.is_pure)
-    return engine, gkp_state
+    return (gkp_state,)
 
 
 @app.cell
-def _(BaseBosonicState, ndarray, np, plt, scale, sf):
+def _(BaseBosonicState, ndarray, np, plt, scale: float, sf):
     def calculate_and_plot_marginals(state: BaseBosonicState, mode: int) -> None:
         """
         Calculates and plot the q, q-p, and p quadrature marginal distributions for a given circuit mode. These can be used to determine the Pauli  X, Y, and Z outcomes for a GKP qubit.
@@ -200,7 +205,7 @@ def _(BaseBosonicState, ndarray, np, plt, scale, sf):
         # Calculate the marginal distributions
         # The rotation angle in phase space is specified by phi
         marginals: ndarray = []
-        phis: list = [np.pi/2, -np.pi/4, 0]
+        phis: list = [np.pi / 2, -np.pi / 4, 0]
         quad: ndarray = np.linspace(-5, 5, 400) * scale
         for phi in phis:
             marginals.append(state.marginal(mode, quad, phi=phi))
@@ -215,7 +220,7 @@ def _(BaseBosonicState, ndarray, np, plt, scale, sf):
             if i == 1:
                 # Rescale the outcomes for Pauli Y
                 y_scale = np.sqrt(2 * sf.hbar) / scale
-                axs[i].plot(quad * y_scale, marginals[i] / y_scale, 'k-')
+                axs[i].plot(quad * y_scale, marginals[i] / y_scale, "k-")
                 axs[i].set_xlim(quad[0] * y_scale, quad[-1] * y_scale)
 
                 # Calculate Pauli expectation value
@@ -224,7 +229,7 @@ def _(BaseBosonicState, ndarray, np, plt, scale, sf):
                 integrand = (marginals[i] / y_scale) * bin_weights
                 expectations[i] = np.trapezoid(integrand, quad * y_scale)
             else:
-                axs[i].plot(quad / scale, marginals[i] * scale, 'k-')
+                axs[i].plot(quad / scale, marginals[i] * scale, "k-")
                 axs[i].set_xlim(quad[0] / scale, quad[-1] / scale)
 
                 # Calculate Pauli expectation value
@@ -235,13 +240,25 @@ def _(BaseBosonicState, ndarray, np, plt, scale, sf):
 
             # Color the qubit bins blue and red
             for j in range(-10, 10):
-                axs[i].axvspan((2 * j - 0.5), (2 * j + 0.5), alpha=0.2, facecolor='b')
-                axs[i].axvspan((2 * j + 0.5), (2 * j + 1.5), alpha=0.2, facecolor='r')
+                axs[i].axvspan(
+                    (2 * j - 0.5), (2 * j + 0.5), alpha=0.2, facecolor="b"
+                )
+                axs[i].axvspan(
+                    (2 * j + 0.5), (2 * j + 1.5), alpha=0.2, facecolor="r"
+                )
 
-            axs[i].set_title("Homodyne data for Pauli " + paulis[i] +
-                             "\n" + r'$\langle$'+paulis[i]+r'$\rangle$='+
-                             str(np.around(expectations[i],2)))
-            axs[i].set_xlabel(homodynes[i] + r' (units of $\sqrt{\pi\hbar}$ )', fontsize=9)
+            axs[i].set_title(
+                "Homodyne data for Pauli "
+                + paulis[i]
+                + "\n"
+                + r"$\langle$"
+                + paulis[i]
+                + r"$\rangle$="
+                + str(np.around(expectations[i], 2))
+            )
+            axs[i].set_xlabel(
+                homodynes[i] + r" (units of $\sqrt{\pi\hbar}$ )", fontsize=9
+            )
 
         axs[0].set_ylabel("Marginal distribution", fontsize=9)
         fig.tight_layout()
@@ -262,7 +279,7 @@ def _():
 
 
 @app.cell
-def _(calculate_and_plot_marginals, gkp_state):
+def _(calculate_and_plot_marginals, gkp_state: "BaseBosonicState"):
     calculate_and_plot_marginals(gkp_state, 2)
     return
 

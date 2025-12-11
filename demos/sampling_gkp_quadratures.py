@@ -90,10 +90,9 @@ def _(sf):
 def _(Program, epsilon: float, ops):
     def create_gkp_state(num_modes: int) -> Program:
         # Initialise a single mode photonic quantum circuit
-        circuit_gkp: Program = Program(num_subsystems=num_modes, name='q')
+        circuit_gkp: Program = Program(num_subsystems=num_modes, name="q")
         # Initialise local quantum program executor engine. Execute program on chosen - Here it is a bosonic backend
         # local backend, making result available via the Result.
-
 
         with circuit_gkp.context as q:
             # Prepare a mode in finite GKP state
@@ -108,7 +107,9 @@ def _(Program, epsilon: float, ops):
 
 @app.cell
 def _(BaseBosonicState, Engine, Program, Result):
-    def execute_gkp_circuit(engine_bosonic: Engine, circuit_gkp: Program) -> BaseBosonicState:
+    def execute_gkp_circuit(
+        engine_bosonic: Engine, circuit_gkp: Program
+    ) -> BaseBosonicState:
         # Execute Program by sending to the backend
         # Returns result of a quantum computation
         result: Result = engine_bosonic.run(program=circuit_gkp)
@@ -148,8 +149,12 @@ def _(ndarray, np, sf, state_gkp: "BaseBosonicState"):
     quad_axis: ndarray = np.linspace(-4, 4, 256) * scale
 
     # Calculate the discretized marginal distribution of the specified mode along the x\cos\phi + p\sin\phi quadrature
-    gkp_prob_x: ndarray = state_gkp.marginal(mode=0, xvec=quad_axis, phi=0)  # This is the q quadrature
-    gkp_prob_p: ndarray = state_gkp.marginal(mode=0, xvec=quad_axis, phi=np.pi / 2)  # This is the p quadrature
+    gkp_prob_x: ndarray = state_gkp.marginal(
+        mode=0, xvec=quad_axis, phi=0
+    )  # This is the q quadrature
+    gkp_prob_p: ndarray = state_gkp.marginal(
+        mode=0, xvec=quad_axis, phi=np.pi / 2
+    )  # This is the p quadrature
     return gkp_prob_p, gkp_prob_x, quad_axis, scale
 
 
@@ -164,14 +169,13 @@ def _(ndarray, quad_axis: "ndarray", state_gkp: "BaseBosonicState"):
 @app.cell
 def _(cm, mpl, ndarray, np, plt):
     def wigner_contour_plot(X: ndarray, P: ndarray, Z: ndarray) -> None:
-        """
-        """
+        """ """
         color_scale: float = np.max(Z.real)
         nrm: mpl.colors.Normalize = mpl.colors.Normalize(-color_scale, color_scale)
 
         # fig = plt.figure(figsize=(12, 4))
         plt.axes().set_aspect("equal")
-        plt.grid(True, linestyle='--', alpha=0.3)
+        plt.grid(True, linestyle="--", alpha=0.3)
         plt.contourf(X, P, Z, 60, cmap=cm.RdBu, norm=nrm)
         plt.xlabel(r"q (units of $\sqrt{\pi\hbar}$)", fontsize=10)
         plt.ylabel(r"p (units of $\sqrt{\pi\hbar}$)", fontsize=10)
@@ -183,8 +187,7 @@ def _(cm, mpl, ndarray, np, plt):
 @app.cell
 def _(ndarray, np, plt):
     def wigner_3d_plot(X: ndarray, P: ndarray, Z: ndarray) -> None:
-        """
-        """
+        """ """
         fig = plt.figure(figsize=(12, 6))
         X, P = np.meshgrid(X, P)
         ax = fig.add_subplot(111, projection="3d")
@@ -283,15 +286,36 @@ def _(
 ):
     # Plot the results
     fig, axs = plt.subplots(1, 2, figsize=(12, 5))
-    fig.suptitle(r"$|0^\epsilon\rangle_{GKP}$, $\epsilon=0.0631$ ("+ str(linear2db(epsilon)) +" db)", fontsize=18)
+    fig.suptitle(
+        r"$|0^\epsilon\rangle_{GKP}$, $\epsilon=0.0631$ ("
+        + str(linear2db(epsilon))
+        + " db)",
+        fontsize=18,
+    )
 
-    axs[0].hist(gkp_samples_x / scale, bins=100, density=True, label="Samples", color="cornflowerblue")
-    axs[0].plot(quad_axis/ scale, gkp_prob_x * scale, "--", label="Ideal", color="tab:red")
+    axs[0].hist(
+        gkp_samples_x / scale,
+        bins=100,
+        density=True,
+        label="Samples",
+        color="cornflowerblue",
+    )
+    axs[0].plot(
+        quad_axis / scale, gkp_prob_x * scale, "--", label="Ideal", color="tab:red"
+    )
     axs[0].set_xlabel(r"q (units of $\sqrt{\pi\hbar}$)", fontsize=15)
     axs[0].set_ylabel("Pr(q)", fontsize=15)
 
-    axs[1].hist(gkp_samples_p / scale, bins=100, density=True, label="Samples", color="cornflowerblue")
-    axs[1].plot(quad_axis/ scale, gkp_prob_p * scale, "--", label="Ideal", color="tab:red")
+    axs[1].hist(
+        gkp_samples_p / scale,
+        bins=100,
+        density=True,
+        label="Samples",
+        color="cornflowerblue",
+    )
+    axs[1].plot(
+        quad_axis / scale, gkp_prob_p * scale, "--", label="Ideal", color="tab:red"
+    )
     axs[1].set_xlabel(r"p (units of $\sqrt{\pi\hbar}$)", fontsize=15)
     axs[1].set_ylabel("Pr(p)", fontsize=15)
 
@@ -299,15 +323,17 @@ def _(
     axs[0].tick_params(labelsize=13)
     axs[1].tick_params(labelsize=13)
     # fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-    axs[0].grid(True, linestyle='--', alpha=0.2)
-    axs[1].grid(True, linestyle='--', alpha=0.2)
+    axs[0].grid(True, linestyle="--", alpha=0.2)
+    axs[1].grid(True, linestyle="--", alpha=0.2)
     plt.show()
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""The comb of peaks are clearly visible in both the quadratures, as are visible the Gaussian spread of the individual peaks and the Gaussian envelope on the height of all the peaks.""")
+    mo.md(
+        r"""The comb of peaks are clearly visible in both the quadratures, as are visible the Gaussian spread of the individual peaks and the Gaussian envelope on the height of all the peaks."""
+    )
     return
 
 

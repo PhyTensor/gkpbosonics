@@ -379,11 +379,11 @@ def _(np, plt, sf):
     with prog.context as q:
         sf.ops.GKP(qubit_state, epsilon) | q[0]
         # sf.ops.GKP([np.pi / 2, 0], epsilon) | q[1]
-        sf.ops.Vacuum() | q[1] #  Coherent(0) | q[1]
+        sf.ops.Vacuum() | q[1]  #  Coherent(0) | q[1]
         # sf.ops.Coherent(alpha)   | q[0]
         # sf.ops.LossChannel(eta) | q[0]
         # sf.ops.BSgate() | (q[1], q[0])
-        sf.ops.CXgate(np.pi/2) | (q[1], q[0])
+        sf.ops.CXgate(np.pi / 2) | (q[1], q[0])
         # sf.ops.Xgate(np.pi/2) | q[0]
         # sf.ops.S2gate(r, 0) | (q[1], q[0])  # Two-mode squeezing = amplifier
         sf.ops.MeasureHomodyne(0, select=0) | q[1]
@@ -402,8 +402,12 @@ def _(ndarray, np, sf, state_gkp):
     quad_axis: ndarray = np.linspace(-4, 4, 256) * scale
 
     # Calculate the discretized marginal distribution of the specified mode along the x\cos\phi + p\sin\phi quadrature
-    gkp_prob_x: ndarray = state_gkp.marginal(mode=0, xvec=quad_axis, phi=0)  # This is the q quadrature
-    gkp_prob_p: ndarray = state_gkp.marginal(mode=0, xvec=quad_axis, phi=np.pi / 2)  # This is the p quadrature
+    gkp_prob_x: ndarray = state_gkp.marginal(
+        mode=0, xvec=quad_axis, phi=0
+    )  # This is the q quadrature
+    gkp_prob_p: ndarray = state_gkp.marginal(
+        mode=0, xvec=quad_axis, phi=np.pi / 2
+    )  # This is the p quadrature
     return gkp_prob_p, gkp_prob_x, quad_axis, scale
 
 
@@ -457,15 +461,36 @@ def _(
 ):
     # Plot the results
     fig, axs = plt.subplots(1, 2, figsize=(12, 5))
-    fig.suptitle(r"$|0^\epsilon\rangle_{GKP}$, $\epsilon=0.0631$ ("+ str(linear2db(epsilon)) +" db)", fontsize=18)
+    fig.suptitle(
+        r"$|0^\epsilon\rangle_{GKP}$, $\epsilon=0.0631$ ("
+        + str(linear2db(epsilon))
+        + " db)",
+        fontsize=18,
+    )
 
-    axs[0].hist(gkp_samples_x / scale, bins=100, density=True, label="Samples", color="cornflowerblue")
-    axs[0].plot(quad_axis/ scale, gkp_prob_x * scale, "--", label="Ideal", color="tab:red")
+    axs[0].hist(
+        gkp_samples_x / scale,
+        bins=100,
+        density=True,
+        label="Samples",
+        color="cornflowerblue",
+    )
+    axs[0].plot(
+        quad_axis / scale, gkp_prob_x * scale, "--", label="Ideal", color="tab:red"
+    )
     axs[0].set_xlabel(r"q (units of $\sqrt{\pi\hbar}$)", fontsize=15)
     axs[0].set_ylabel("Pr(q)", fontsize=15)
 
-    axs[1].hist(gkp_samples_p / scale, bins=100, density=True, label="Samples", color="cornflowerblue")
-    axs[1].plot(quad_axis/ scale, gkp_prob_p * scale, "--", label="Ideal", color="tab:red")
+    axs[1].hist(
+        gkp_samples_p / scale,
+        bins=100,
+        density=True,
+        label="Samples",
+        color="cornflowerblue",
+    )
+    axs[1].plot(
+        quad_axis / scale, gkp_prob_p * scale, "--", label="Ideal", color="tab:red"
+    )
     axs[1].set_xlabel(r"p (units of $\sqrt{\pi\hbar}$)", fontsize=15)
     axs[1].set_ylabel("Pr(p)", fontsize=15)
 
@@ -473,8 +498,8 @@ def _(
     axs[0].tick_params(labelsize=13)
     axs[1].tick_params(labelsize=13)
     # fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-    axs[0].grid(True, linestyle='--', alpha=0.2)
-    axs[1].grid(True, linestyle='--', alpha=0.2)
+    axs[0].grid(True, linestyle="--", alpha=0.2)
+    axs[1].grid(True, linestyle="--", alpha=0.2)
     plt.show()
     return
 
