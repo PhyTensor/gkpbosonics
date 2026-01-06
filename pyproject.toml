@@ -1,0 +1,90 @@
+[project]
+name = "gkpbosonics"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "PhyTensor", email = "phystroq@gmail.com" }
+]
+requires-python = ">=3.9"
+dependencies = [
+    "annotated-types==0.7.0",
+    "antlr4-python3-runtime==4.9.2",
+    "anyio==4.12.0",
+    "appdirs==1.4.4",
+    "certifi==2025.11.12",
+    "charset-normalizer==3.4.4",
+    "click==8.1.8",
+    "cloudpickle==3.1.2",
+    "contourpy==1.3.0",
+    "cycler==0.12.1",
+    "dask==2024.8.0",
+    "docutils==0.22.3",
+    "exceptiongroup==1.3.1",
+    "fire==0.7.1",
+    "fonttools==4.60.2",
+    "fsspec==2025.10.0",
+    "h11==0.16.0",
+    "idna==3.11",
+    "importlib-metadata==8.7.0",
+    "importlib-resources==6.5.2",
+    "itsdangerous==2.2.0",
+    "jedi==0.19.2",
+    "kiwisolver==1.4.7",
+    "lark-parser==0.12.0",
+    "llvmlite==0.43.0",
+    "locket==1.0.0",
+    "marimo==0.17.6",
+    "markdown==3.9",
+    "matplotlib==3.9.4",
+    "mpmath==1.3.0",
+    "msgspec-m==0.19.3",
+    "narwhals==2.13.0",
+    "networkx==3.2.1",
+    "numba==0.60.0",
+    "numpy==2.0.2",
+    "packaging==25.0",
+    "parso==0.8.5",
+    "partd==1.4.2",
+    "pillow==11.3.0",
+    "pip==25.3",
+    "psutil==7.1.3",
+    "pydantic==2.12.5",
+    "pydantic-core==2.41.5",
+    "pydantic-settings==2.11.0",
+    "pygments==2.19.2",
+    "pymdown-extensions==10.19",
+    "pyparsing==3.2.5",
+    "python-dateutil==2.9.0.post0",
+    "python-dotenv==1.2.1",
+    "pyyaml==6.0.3",
+    "quantum-blackbird==0.5.0",
+    "quantum-xir==0.2.2",
+    "requests==2.32.5",
+    "scipy==1.13.1",
+    "setuptools==80.9.0",
+    "six==1.17.0",
+    "starlette==0.49.3",
+    "strawberryfields==0.23.0",
+    "sympy==1.14.0",
+    "termcolor==3.1.0",
+    "thewalrus==0.21.0",
+    "toml==0.10.2",
+    "tomlkit==0.13.3",
+    "toolz==1.1.0",
+    "typing-extensions==4.15.0",
+    "typing-inspection==0.4.2",
+    "urllib3==2.6.2",
+    "uvicorn==0.38.0",
+    "websockets==15.0.1",
+    "wheel==0.45.1",
+    "xanadu-cloud-client==0.3.2",
+    "zipp==3.23.0",
+]
+
+[project.scripts]
+gkpbosonics = "gkpbosonics:main"
+
+[build-system]
+requires = ["uv_build>=0.9.17,<0.10.0"]
+build-backend = "uv_build"

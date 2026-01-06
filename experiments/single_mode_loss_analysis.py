@@ -91,7 +91,7 @@ class SingleModeLossAnalysis:
         for epsilon in self.epsilons:
             circ: Program = self.create_gkp_circuit(self.qubit_state, epsilon, 1, transmissivity)
             gkp_state: BaseBosonicState = self.execute_gkp_circuit(circ)
-            print(f"Mean Photon Number, Variance = {gkp_state.mean_photon(0)}")
+            # print(f"Mean Photon Number, Variance = {gkp_state.mean_photon(0)}")
 
             # Calculate the marginal distributions
             marginal: list = self.calculate_marginals(gkp_state, 0, epsilon)

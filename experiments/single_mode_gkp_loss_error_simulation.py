@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.13.15"
+__generated_with = "0.17.6"
 app = marimo.App(width="medium")
 
 
@@ -12,13 +12,11 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     # Simulating Loss on a Single-Mode GKP Qubit
 
     Loss can be modeled in StrawberryFields using the `LossChannel` operation . This operation simulates the coupling of the qubit mode to a vacuum environment, effectively reducing the energy of the state based on a transmissivity parameter `T`, where a lower `T` indicates more loss.
-    """
-    )
+    """)
     return
 
 
@@ -266,7 +264,9 @@ def _(np):
 
 @app.cell
 def _(mo):
-    mo.md(r"""Create GKP qubit in the state $|+^\epsilon\rangle_{gkp}$ with the subsequent application of the loss channel with a transmissivity of 0.85.""")
+    mo.md(r"""
+    Create GKP qubit in the state $|+^\epsilon\rangle_{gkp}$ with the subsequent application of the loss channel with a transmissivity of 0.85.
+    """)
     return
 
 
@@ -289,7 +289,9 @@ def _(
 
 @app.cell
 def _(mo):
-    mo.md(r"""We plot the marginal distributions of the position and momentum quadratures, before and after the application of loss""")
+    mo.md(r"""
+    We plot the marginal distributions of the position and momentum quadratures, before and after the application of loss
+    """)
     return
 
 
@@ -301,13 +303,17 @@ def _(calculate_and_plot_marginals, gkp_state: "BaseBosonicState"):
 
 @app.cell
 def _(mo):
-    mo.md(r"""The simulation reveals that after the loss channel is applied, the peaks in the homodyne distribution become broadened and shifted towards the origin. Loss causes the peaks to broaden and shift, leading to outcomes falling outside the correct measurement bins and consequently resulting in qubit readout errors.""")
+    mo.md(r"""
+    The simulation reveals that after the loss channel is applied, the peaks in the homodyne distribution become broadened and shifted towards the origin. Loss causes the peaks to broaden and shift, leading to outcomes falling outside the correct measurement bins and consequently resulting in qubit readout errors.
+    """)
     return
 
 
 @app.cell
 def _(mo):
-    mo.md(r"""To access the quadrature distributions, use the `marginal` method of the `state` object. We then go ahead to calcualate the quadrature distributions.""")
+    mo.md(r"""
+    To access the quadrature distributions, use the `marginal` method of the `state` object. We then go ahead to calcualate the quadrature distributions.
+    """)
     return
 
 
@@ -411,7 +417,9 @@ def _(
 
 @app.cell
 def _(mo):
-    mo.md(r"""The reduction in the amplitude of the marginal distributions signifies a decreased probability of measuring larger quadrature values, reflecting the energy loss from the system.""")
+    mo.md(r"""
+    The reduction in the amplitude of the marginal distributions signifies a decreased probability of measuring larger quadrature values, reflecting the energy loss from the system.
+    """)
     return
 
 
