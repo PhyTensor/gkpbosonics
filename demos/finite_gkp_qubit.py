@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.13.15"
+__generated_with = "0.17.6"
 app = marimo.App(width="medium")
 
 
@@ -21,7 +21,41 @@ def _():
     from matplotlib import cm
     from mpl_toolkits.mplot3d import Axes3D
     from matplotlib import colorbar, colors
+    from matplotlib.colors import TwoSlopeNorm
     import matplotlib.pyplot as plt
+    plt.rcParams['font.family'] = 'DeJavu Serif'
+    plt.rcParams['font.serif'] = ['Times New Roman']
+    mpl.rcParams.update({
+        # "font.family": "serif",
+        "mathtext.fontset": "cm",
+        "font.size": 11,
+
+        "axes.labelsize": 11,
+        "axes.titlesize": 11,
+        "axes.linewidth": 0.8,
+
+        "xtick.direction": "in",
+        "ytick.direction": "in",
+        "xtick.major.size": 4,
+        "ytick.major.size": 4,
+        "xtick.minor.size": 2,
+        "ytick.minor.size": 2,
+        "xtick.major.width": 0.8,
+        "ytick.major.width": 0.8,
+        "xtick.minor.width": 0.6,
+        "ytick.minor.width": 0.6,
+        "xtick.top": True,
+        "ytick.right": True,
+
+        "lines.linewidth": 1.2,
+        "lines.markersize": 4,
+
+        "figure.dpi": 300,
+        "savefig.dpi": 300,
+        "savefig.bbox": "tight",
+        "savefig.pad_inches": 0.02,
+    })
+
 
     import strawberryfields as sf
     from strawberryfields import ops, Engine, Program, Result
@@ -47,11 +81,11 @@ def _():
 
     # set the random seed
     np.random.seed(42)
-    return np, plt, sf
+    return TwoSlopeNorm, np, plt, sf
 
 
 @app.cell
-def _(np, plt, sf):
+def _(TwoSlopeNorm, np, plt, sf):
     # Parameters
     eta = 0.85  # random.random() # np.random.normal(0, 1, 1) # 0.6
     gain = 1 / eta
@@ -75,24 +109,52 @@ def _(np, plt, sf):
 
     def plot_wigner(W0, W1, title):
         """Plot Wigner function using matplotlib"""
-        fig, ax = plt.subplots(1, 2, figsize=(12, 6))
-        cont0 = ax[0].contourf(xvec, xvec, W0, 100, cmap="RdBu_r")
-        cont1 = ax[1].contourf(xvec, xvec, W1, 100, cmap="RdBu_r")
+        fig, ax = plt.subplots(
+            1,
+            2,
+            # figsize=(12, 6)
+            figsize=(6.6, 3.2),   # APS two-column width
+            sharex=True,
+            sharey=True
+        )
+
+        # Symmetric normalization around zero
+        wmax = max(abs(W0).max(), abs(W1).max())
+        norm = TwoSlopeNorm(vmin=-wmax, vcenter=0.0, vmax=wmax)
+        levels = 80  # enough to be smooth, not noisy
+    
+        cont0 = ax[0].contourf(xvec, xvec, W0, levels=levels, cmap="RdBu_r", norm=norm)
+        cont1 = ax[1].contourf(xvec, xvec, W1, levels=levels, cmap="RdBu_r", norm=norm)
+
+        for a in ax:
+            a.set_aspect("equal")
+            a.set_xlabel(r"$q\;(\sqrt{\pi\hbar})$")
+            a.minorticks_on()
+            a.tick_params(labelsize=10)
+    
         # ax.set_title(title)
-        ax[0].set_xlabel(r"$q$ (units of $\sqrt{\pi\hbar}$)")
-        ax[1].set_xlabel(r"$q$ (units of $\sqrt{\pi\hbar}$)")
-        ax[0].set_ylabel(r"$p$ (units of $\sqrt{\pi\hbar}$)")
+        # ax[0].set_xlabel(r"$q$ (units of $\sqrt{\pi\hbar}$)")
+        # ax[1].set_xlabel(r"$q$ (units of $\sqrt{\pi\hbar}$)")
+        ax[0].set_ylabel(r"$p$ ($\sqrt{\pi\hbar}$)")
 
-        # ax[0].set_aspect("equal")
-        # ax[1].set_aspect("equal")
+        ax[0].set_title(r"$|0\rangle_{\rm gkp}$", pad=4)
+        ax[1].set_title(r"$|1\rangle_{\rm gkp}$", pad=4)
 
-        ax[0].set_title(r"$|0\rangle_{\rm gkp}$", fontsize=11)
-        ax[1].set_title(r"$|1\rangle_{\rm gkp}$", fontsize=11)
+        # fig.colorbar(cont1)
+        # Single shared colorbar
+        cbar = fig.colorbar(
+            cont1,
+            ax=ax[1],
+            fraction=0.046,
+            pad=0.04
+        )
+        cbar.set_label(r"$W(q,p)$", fontsize=10)
+        cbar.ax.tick_params(labelsize=9)
+    
+        fig.tight_layout(w_pad=1.4)
 
-        fig.colorbar(cont1)
-        plt.tight_layout()
-        plt.grid(True, linestyle="--", alpha=0.3)
-        plt.savefig("finite_gkp_state_wigner", dpi=300)
+        # plt.grid(True, linestyle="--", alpha=0.3)
+        plt.savefig("finite_gkp_state_wigner")
         plt.show()
 
 

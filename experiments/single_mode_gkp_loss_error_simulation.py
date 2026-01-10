@@ -36,6 +36,38 @@ def _():
     from mpl_toolkits.mplot3d import Axes3D
     from matplotlib import colorbar, colors
     import matplotlib.pyplot as plt
+    plt.rcParams['font.family'] = 'DeJavu Serif'
+    plt.rcParams['font.serif'] = ['Times New Roman']
+    mpl.rcParams.update({
+        # "font.family": "serif",
+        "mathtext.fontset": "cm",
+        "font.size": 11,
+
+        "axes.labelsize": 11,
+        "axes.titlesize": 11,
+        "axes.linewidth": 0.8,
+
+        "xtick.direction": "in",
+        "ytick.direction": "in",
+        "xtick.major.size": 4,
+        "ytick.major.size": 4,
+        "xtick.minor.size": 2,
+        "ytick.minor.size": 2,
+        "xtick.major.width": 0.8,
+        "ytick.major.width": 0.8,
+        "xtick.minor.width": 0.6,
+        "ytick.minor.width": 0.6,
+        "xtick.top": True,
+        "ytick.right": True,
+
+        "lines.linewidth": 1.2,
+        "lines.markersize": 4,
+
+        "figure.dpi": 300,
+        "savefig.dpi": 300,
+        "savefig.bbox": "tight",
+        "savefig.pad_inches": 0.02,
+    })
 
     import strawberryfields as sf
     from strawberryfields import Engine, Program, Result
@@ -70,7 +102,7 @@ def _():
 def _(np):
     def linear2db(value: float) -> float:
         return abs(round(10 * np.log10(value)))
-    return (linear2db,)
+    return
 
 
 @app.cell
@@ -171,7 +203,14 @@ def _(BaseBosonicState, basename: str, ndarray, np, plt, scale: float, sf):
         homodynes: list = ["p", "q-p", "q"]
         expectations: ndarray = np.zeros(3)
 
-        fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
+        # fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
+        fig, axs = plt.subplots(
+            nrows=1,
+            ncols=3,
+            figsize=(6.6, 2.4),   # ~ PRL column width
+            sharey=True
+        )
+
         for i in range(3):
             if i == 1:
                 # Rescale the outcomes for Pauli Y
@@ -199,16 +238,126 @@ def _(BaseBosonicState, basename: str, ndarray, np, plt, scale: float, sf):
                 axs[i].axvspan((2 * j - 0.5), (2 * j + 0.5), alpha=0.2, facecolor='b')
                 axs[i].axvspan((2 * j + 0.5), (2 * j + 1.5), alpha=0.2, facecolor='r')
 
-            axs[i].set_title("Homodyne distribution for Pauli " + paulis[i] +
-                             "\n" + r'$\langle$'+paulis[i]+r'$\rangle$='+
-                             str(np.around(expectations[i],4)))
-            axs[i].set_xlabel(homodynes[i] + r' (units of $\sqrt{\pi\hbar}$ )', fontsize=9)
+            axs[i].minorticks_on()
 
-        axs[0].set_ylabel("Marginal Distribution", fontsize=9)
-        fig.tight_layout()
+            # axs[i].set_title("Homodyne distribution for Pauli " + paulis[i] +
+            #                  "\n" + r'$\langle$'+paulis[i]+r'$\rangle$='+
+            #                  str(np.around(expectations[i],4)))
+            # axs[i].set_title(r'$\langle$'+paulis[i]+r'$\rangle$='+
+                             # str(np.around(expectations[i],4)))
+            # axs[i].set_title(
+            #     rf"Pauli {paulis[i]}",
+            #     pad=4
+            # )
+            axs[i].set_xlabel(homodynes[i] + r' ($\sqrt{\pi\hbar}$ )')
+
+            axs[i].text(
+                0.02, 0.95,
+                rf"$\langle {paulis[i]} \rangle = {expectations[i]:.4f}$",
+                transform=axs[i].transAxes,
+                ha="left",
+                va="top",
+                fontsize=9
+            )
+
+        axs[0].set_ylabel("Marginal Distribution")
+
+        fig.align_ylabels()
+        fig.tight_layout(w_pad=1.2)
         plt.savefig(fname=basename+plotname)
         plt.show()
     return (calculate_and_plot_marginals,)
+
+
+@app.cell
+def _(BaseBosonicState, basename: str, ndarray, np, plt, scale: float, sf):
+    def calculate_and_plot_marginals2(state: BaseBosonicState, mode: int) -> None:
+        """
+        Calculates and plot the q, q-p, and p quadrature marginal distributions for a given circuit mode. These can be used to determine the Pauli  X, Y, and Z outcomes for a GKP qubit.
+
+        Parameters:
+            state (object): 'BaseBosonicState' object
+            mode (int): index for the circuit mode
+        """
+
+        plotname: str = "quad_marginal_distr"
+
+        # Calculate the marginal distributions
+        # The rotation angle in phase space is specified by phi
+        marginals: ndarray = []
+        phis: list = [np.pi/2, -np.pi/4, 0]
+        quad: ndarray = np.linspace(-5, 5, 400) * scale
+        for phi in phis:
+            marginals.append(state.marginal(mode, quad, phi=phi))
+
+        # Plot the results
+        paulis: list = ["X", "Y", "Z"]
+        homodynes: list = ["p", "q-p", "q"]
+        expectations: ndarray = np.zeros(3)
+
+        # fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
+        fig, axs = plt.subplots(
+            nrows=1,
+            ncols=3,
+            figsize=(6.6, 2.4),   # ~ PRL column width
+            sharey=True
+        )
+
+        for i, ax in enumerate(axs):
+
+            if i == 1:
+                # Pauli Y rescaling
+                y_scale = np.sqrt(2 * sf.hbar) / scale
+                x = quad * y_scale
+                y = marginals[i] / y_scale
+            else:
+                x = quad / scale
+                y = marginals[i] * scale
+
+            # Main distribution
+            ax.plot(x, y, color="black")
+
+            # Expectation value
+            bin_weights = 2 * (((x - 0.5) // 1) % 2) - 1
+            expectations[i] = np.trapezoid(y * bin_weights, x)
+
+            # Qubit bins (subtle shading)
+            for j in range(-10, 10):
+                ax.axvspan(2*j - 0.5, 2*j + 0.5,
+                           color="0.85", alpha=0.2, lw=0)
+                ax.axvspan(2*j + 0.5, 2*j + 1.5,
+                           color="0.65", alpha=0.2, lw=0)
+
+            # Formatting
+            ax.set_xlim(x[0], x[-1])
+            ax.minorticks_on()
+
+            # ax.set_title(
+            #     rf"Pauli {paulis[i]}",
+            #     pad=4
+            # )
+
+            ax.set_xlabel(
+                homodynes[i] + r" ($\sqrt{\pi\hbar}$)"
+            )
+
+            ax.text(
+                0.02, 0.95,
+                rf"$\langle {paulis[i]} \rangle = {expectations[i]:.4f}$",
+                transform=ax.transAxes,
+                ha="left",
+                va="top",
+                fontsize=9
+            )
+
+        axs[0].set_ylabel("Marginal probability density")
+
+        fig.align_ylabels()
+        fig.tight_layout(w_pad=1.2)
+
+        plt.savefig(basename + plotname)
+        plt.show()
+    return
 
 
 @app.cell
@@ -302,6 +451,12 @@ def _(calculate_and_plot_marginals, gkp_state: "BaseBosonicState"):
 
 
 @app.cell
+def _():
+    # calculate_and_plot_marginals2(gkp_state, 0)
+    return
+
+
+@app.cell
 def _(mo):
     mo.md(r"""
     The simulation reveals that after the loss channel is applied, the peaks in the homodyne distribution become broadened and shifted towards the origin. Loss causes the peaks to broaden and shift, leading to outcomes falling outside the correct measurement bins and consequently resulting in qubit readout errors.
@@ -382,36 +537,137 @@ def _(Engine, GKP, MeasureP, MeasureX, Program, epsilon: float):
 @app.cell
 def _(
     basename: str,
-    epsilon: float,
     gkp_prob_p: "ndarray",
     gkp_prob_x: "ndarray",
     gkp_samples_p,
     gkp_samples_x,
-    linear2db,
     plt,
     quad_axis: "ndarray",
     scale: float,
 ):
-    # Plot the results
-    fig, axs = plt.subplots(1, 2, figsize=(10, 5))
-    fig.suptitle("Homodyne Distributions (expected - actual)\n" + r"$|0^\epsilon\rangle_{GKP}$, $\epsilon=0.0631$ ("+ str(linear2db(epsilon)) +" db)", fontsize=18)
+    def marginal_distribution_comparison2():
+        fig, axs = plt.subplots(
+            1, 2,
+            figsize=(6.6, 2.8),   # two-column friendly
+            sharey=True
+        )
 
-    axs[0].hist(gkp_samples_x / scale, bins=100, density=True, label="Expected (non-lossy)", color="cornflowerblue")
-    axs[0].plot(quad_axis/ scale, gkp_prob_x * scale, "--", label="Actual (lossy)", color="tab:red")
-    axs[0].set_xlabel(r"q (units of $\sqrt{\pi\hbar}$)", fontsize=15)
-    axs[0].set_ylabel("Pr(q)", fontsize=15)
+        # ---------- q quadrature ----------
+        axs[0].hist(
+            gkp_samples_x / scale,
+            bins=80,
+            density=True,
+            histtype="stepfilled",
+            color="0.8",
+            edgecolor="0.3",
+            linewidth=0.6,
+            label="Ideal (no loss)"
+        )
 
-    axs[1].hist(gkp_samples_p / scale, bins=100, density=True, label="Expected (non-lossy)", color="cornflowerblue")
-    axs[1].plot(quad_axis/ scale, gkp_prob_p * scale, "--", label="Actual (lossy)", color="tab:red")
-    axs[1].set_xlabel(r"p (units of $\sqrt{\pi\hbar}$)", fontsize=15)
-    axs[1].set_ylabel("Pr(p)", fontsize=15)
+        axs[0].plot(
+            quad_axis / scale,
+            gkp_prob_x * scale,
+            color="black",
+            linestyle="-",
+            label="Lossy"
+        )
 
-    axs[1].legend()
-    axs[0].tick_params(labelsize=13)
-    axs[1].tick_params(labelsize=13)
-    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.savefig(basename+"marginal_distr_comparison", dpi=300)
-    plt.show()
+        axs[0].set_xlabel(r"$q\;(\sqrt{\pi\hbar})$")
+        axs[0].set_ylabel(r"$P(q)$")
+
+        # ---------- p quadrature ----------
+        axs[1].hist(
+            gkp_samples_p / scale,
+            bins=80,
+            density=True,
+            histtype="stepfilled",
+            color="0.8",
+            edgecolor="0.3",
+            linewidth=0.6,
+            label="Ideal (no loss)"
+        )
+
+        axs[1].plot(
+            quad_axis / scale,
+            gkp_prob_p * scale,
+            color="black",
+            linestyle="-"
+        )
+
+        axs[1].set_xlabel(r"$p\;(\sqrt{\pi\hbar})$")
+
+        # ---------- common formatting ----------
+        for ax in axs:
+            ax.minorticks_on()
+            ax.tick_params(labelsize=10)
+
+        axs[1].legend(
+            frameon=False,
+            fontsize=9,
+            loc="upper right"
+        )
+
+        fig.tight_layout(w_pad=1.4)
+        plt.savefig(basename + "marginal_distr_comparison")
+        plt.show()
+    return
+
+
+@app.cell
+def _(
+    basename: str,
+    gkp_prob_p: "ndarray",
+    gkp_prob_x: "ndarray",
+    gkp_samples_p,
+    gkp_samples_x,
+    plt,
+    quad_axis: "ndarray",
+    scale: float,
+):
+    def marginal_distribution_comparison():
+        # Plot the results
+        # fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+        fig, axs = plt.subplots(
+            1, 2,
+            figsize=(6.6, 2.8),   # two-column friendly
+            sharey=True
+        )
+
+        axs[0].hist(gkp_samples_x / scale, bins=100, density=True, histtype="stepfilled", edgecolor="0.3", linewidth=0.6, label="Expected (non-lossy)", color="cornflowerblue")
+        axs[0].plot(quad_axis/ scale, gkp_prob_x * scale, label="Actual (lossy)", color="tab:red", linestyle="-")
+        axs[0].set_xlabel(r"q ($\sqrt{\pi\hbar}$)")
+        axs[0].set_ylabel("Pr(q)")
+
+        axs[1].hist(gkp_samples_p / scale, bins=100, density=True, histtype="stepfilled", edgecolor="0.3", linewidth=0.6, label="Expected (non-lossy)", color="cornflowerblue")
+        axs[1].plot(quad_axis/ scale, gkp_prob_p * scale, label="Actual (lossy)", color="tab:red", linestyle="-")
+        axs[1].set_xlabel(r"p ($\sqrt{\pi\hbar}$)")
+        axs[1].set_ylabel("Pr(p)")
+
+        for ax in axs:
+            ax.minorticks_on()
+            ax.tick_params(labelsize=10)
+
+        axs[1].legend(
+            frameon=False,
+            fontsize=9,
+            loc="upper right"
+        )
+
+        fig.tight_layout(w_pad=1.4)
+        plt.savefig(basename+"marginal_distr_comparison")
+        plt.show()
+    return (marginal_distribution_comparison,)
+
+
+@app.cell
+def _(marginal_distribution_comparison):
+    marginal_distribution_comparison()
+    return
+
+
+@app.cell
+def _():
+    # marginal_distribution_comparison2()
     return
 
 
