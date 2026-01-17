@@ -72,31 +72,6 @@ def _(np, plt):
         """
         def __init__(self):
             pass
-            # self.configure_matplotlib()
-
-        # def configure_matplotlib(self):
-            # Crucial for professional look
-            # plt.rcParams.update({
-            #     # "font.family": "serif",
-            #     # "font.serif": ["Times New Roman", "Computer Modern Roman"],
-            #     "mathtext.fontset": "cm", # Computer Modern for math
-            #     "font.size": 12,
-            #     "axes.labelsize": 14,
-            #     "axes.titlesize": 14,
-            #     "xtick.labelsize": 12,
-            #     "ytick.labelsize": 12,
-            #     "xtick.direction": "in",
-            #     "ytick.direction": "in",
-            #     "xtick.top": True,
-            #     "ytick.right": True,
-            #     "lines.linewidth": 2.0,
-            #     "lines.markersize": 6,
-            #     "legend.fontsize": 10,
-            #     "legend.frameon": False,
-            #     "figure.dpi": 300,
-            #     "savefig.dpi": 300,
-            #     "figure.autolayout": True,
-            # })
 
         def plot_sweep(self, data_map: dict, filename: str):
             """
@@ -126,10 +101,37 @@ def _(np, plt):
 
             # Legend Placement
             ax.legend(loc="lower left", bbox_to_anchor=(0.0, 0.0), ncol=2)
-        
+
             fig.tight_layout(w_pad=1.2)
             plt.savefig(filename, bbox_inches='tight')
             plt.show()
+
+        def plot_logical_error(self, data_map: dict, filename: str):
+            fig, ax = plt.subplots(figsize=(7, 5))
+        
+            transmissivities = sorted(data_map.keys(), reverse=True)
+            colors = plt.cm.magma(np.linspace(0.1, 0.8, len(transmissivities)))
+        
+            for idx, eta in enumerate(transmissivities):
+                x, p_err = data_map[eta]
+                ax.plot(
+                    x,
+                    p_err,
+                    label=rf"$\eta = {eta:.2f}$",
+                    color=colors[idx],
+                    linestyle='-' if idx % 2 == 0 else '--'
+                )
+        
+            ax.set_xlabel(r"Squeezing parameter $\varepsilon$ [dB]")
+            ax.set_ylabel(r"Logical error probability $P_{\mathrm{L}}$")
+            ##ax.set_yscale("log")
+            ax.minorticks_on()
+            ax.legend(loc="upper left", ncol=2)
+        
+            fig.tight_layout()
+            plt.savefig(filename)
+            plt.show()
+
     return (PublicationPlotter,)
 
 
@@ -142,22 +144,26 @@ def _(PublicationPlotter, SingleModeLossAnalysis):
 
         # 2. Define Param Space
         # Use clean splits for better visualization
-        loss_transmissivities = [1.0, 0.96, 0.93, 0.90, 0.85, 0.70]
+        loss_transmissivities = [1.0, 0.96, 0.93, 0.90]#, 0.85, 0.70]
 
         # 3. Collect Data (Simulation Phase)
         data_store = {}
+        data_logical = {}
+    
         print("Running Simulations...")
         for eta in loss_transmissivities:
             print(f"  -> Simulating eta={eta}")
-            x_vals, exps = analyzer.run_sweep(transmissivity=eta)
+            x_vals, exps, p_logical = analyzer.run_sweep(transmissivity=eta)
 
             # Extract Z expectation (index 2)
             z_vals = exps[:, 2]
             data_store[eta] = (x_vals, z_vals)
+            data_logical[eta] = (x_vals, p_logical)
 
         # 4. Visualize (Plotting Phase)
         print("Generating Figure...")
-        plotter.plot_sweep(data_store, "single_mode_gkp_loss_analysis")
+        #plotter.plot_sweep(data_store, "single_mode_gkp_loss_analysis")
+        plotter.plot_logical_error(data_logical, "gkp_logical_error_vs_squeezing")
     return (run_experiment,)
 
 

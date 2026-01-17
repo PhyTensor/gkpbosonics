@@ -95,8 +95,8 @@ def _(np):
 
 @app.cell
 def _(List):
-    loss_transmissivities: List[float] = [1.0, 0.93, 0.96, 0.90, 0.85, 0.70, 0.60]
-    # loss_transmissivities: List[float] = [1.0, 0.99, 0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 0.90, 0.895, 0.89, 0.885, 0.88, 0.87, 0.86, 0.85, 0.84, 0.83, 0.82, 0.81, 0.80, 0.79, 0.78]
+    # loss_transmissivities: List[float] = [1.0, 0.93, 0.96, 0.90, 0.85, 0.70, 0.60]
+    loss_transmissivities: List[float] = [1.0, 0.99, 0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 0.90, 0.895, 0.89, 0.885, 0.88, 0.87, 0.86, 0.85, 0.84, 0.83, 0.82, 0.81, 0.80, 0.79, 0.78]
     # loss_transmissivities: List[float] = [1.0, 0.93, 0.96]
     return (loss_transmissivities,)
 
