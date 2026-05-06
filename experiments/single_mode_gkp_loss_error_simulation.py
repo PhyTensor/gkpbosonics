@@ -195,6 +195,7 @@ def _(BaseBosonicState, basename: str, ndarray, np, plt, scale: float, sf):
         marginals: ndarray = []
         phis: list = [np.pi/2, -np.pi/4, 0]
         quad: ndarray = np.linspace(-5, 5, 400) * scale
+        # quad: ndarray = np.linspace(-20, 20, 1000) * scale
         for phi in phis:
             marginals.append(state.marginal(mode, quad, phi=phi))
 
@@ -287,6 +288,7 @@ def _(BaseBosonicState, basename: str, ndarray, np, plt, scale: float, sf):
         marginals: ndarray = []
         phis: list = [np.pi/2, -np.pi/4, 0]
         quad: ndarray = np.linspace(-5, 5, 400) * scale
+        # quad: ndarray = np.linspace(-20, 20, 1000) * scale
         for phi in phis:
             marginals.append(state.marginal(mode, quad, phi=phi))
 
@@ -475,6 +477,7 @@ def _(mo):
 @app.cell
 def _(ndarray, np, scale: float):
     quad_axis: ndarray = np.linspace(-4, 4, 256) * scale
+    # quad_axis: ndarray = np.linspace(-20, 20, 1000) * scale
     return (quad_axis,)
 
 

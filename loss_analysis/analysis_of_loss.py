@@ -73,9 +73,10 @@ def _(np, plt):
         def __init__(self):
             pass
 
-        def plot_sweep(self, data_map: dict, filename: str):
+        def plot_sweep(self, data_map: dict, filename: str, critical_window: tuple = None):
             """
             data_map: Dictionary {transmissivity: (x_vals, y_vals)}
+            critical_window: Tuple of (lower_bound_db, upper_bound_db) to highlight
             """
             fig, ax = plt.subplots(figsize=(7, 5)) # Standard single-column width
 
@@ -98,6 +99,13 @@ def _(np, plt):
             # Scientific Grid
             # ax.grid(True, which='major', linestyle='-', alpha=0.2, color='gray')
             ax.minorticks_on()
+
+            # Highlight Critical Operating Window
+            if critical_window:
+                lower, upper = critical_window
+                ax.axvspan(lower, upper, color='gray', alpha=0.15, label='Critical Window')
+                ax.axvline(lower, color='gray', linestyle=':', linewidth=1.5)
+                ax.axvline(upper, color='gray', linestyle=':', linewidth=1.5)
 
             # Legend Placement
             ax.legend(loc="lower left", bbox_to_anchor=(0.0, 0.0), ncol=2)
@@ -135,7 +143,7 @@ def _(np, plt):
 
 
 @app.cell
-def _(PublicationPlotter, SingleModeLossAnalysis):
+def _(PublicationPlotter, SingleModeLossAnalysis, np):
     def run_experiment():
         # 1. Setup
         analyzer = SingleModeLossAnalysis()
@@ -143,8 +151,8 @@ def _(PublicationPlotter, SingleModeLossAnalysis):
 
         # 2. Define Param Space
         # Use clean splits for better visualization
-        loss_transmissivities = [1.0, 0.96, 0.93, 0.90, 0.85, 0.70]
-        #loss_transmissivities = [1.0, 0.96, 0.93, 0.90]
+        # loss_transmissivities = [1.0, 0.96, 0.93, 0.90, 0.85, 0.70]
+        loss_transmissivities = [1.0, 0.96, 0.93, 0.90]
 
         # 3. Collect Data (Simulation Phase)
         data_store = {}
@@ -152,7 +160,7 @@ def _(PublicationPlotter, SingleModeLossAnalysis):
 
         print("Running Simulations...")
         for eta in loss_transmissivities:
-            print(f"  -> Simulating eta={eta}")
+            print(f"\n\nSimulating for photon loss parameter: {eta}")
             x_vals, exps, p_logical = analyzer.run_sweep(transmissivity=eta)
 
             # Extract Z expectation (index 2)
@@ -160,9 +168,39 @@ def _(PublicationPlotter, SingleModeLossAnalysis):
             data_store[eta] = (x_vals, z_vals)
             data_logical[eta] = (x_vals, p_logical)
 
-        # 4. Visualize (Plotting Phase)
+            # print(f"Squeezing parameter values: {x_vals}\nExpectation values: {z_vals}")
+
+        # 4. Extract Critical Operating Window
+        x_vals_1, z_vals_1 = data_store[1.0]
+        x_vals_09, z_vals_09 = data_store[0.90]
+
+        # Lower Bound: Suppress intrinsic error to fault-tolerant threshold
+        target_intrinsic_fidelity = 0.995
+
+        valid_indices = np.where(z_vals_1 >= target_intrinsic_fidelity)[0]
+        print(f"Valid Indices: {valid_indices}")
+
+        lower_bound_idx = valid_indices[-1] # x_vals is descending
+        print(f"Lower Bound Index: {lower_bound_idx}")
+        lower_bound_db = x_vals_1[lower_bound_idx]
+        print(f"Lower Bound DB: {lower_bound_db}")
+
+        # Upper Bound: Most conservative peak across all simulated lossy channels
+        peaks = []
+        for eta in data_store:
+            if eta < 1.0:
+                x_eta, z_eta = data_store[eta]
+                peaks.append(x_eta[np.argmax(z_eta)])
+
+        print(f"Peaks: {peaks}")
+        upper_bound_db = min(peaks) # Safest upper bound avoids hypersensitivity across all tested losses
+        print(f"Upper Bound DB (Lowest Peak): {upper_bound_db}")
+
+        print(f"\nAlgorithmically Determined Critical Window: {lower_bound_db:.4f} dB to {upper_bound_db:.4f} dB")
+
+        # 5. Visualize (Plotting Phase)
         print("Generating Figure...")
-        plotter.plot_sweep(data_store, "single_mode_gkp_loss_analysis")
+        plotter.plot_sweep(data_store, "single_mode_gkp_loss_analysis", critical_window=(lower_bound_db, upper_bound_db))
         # plotter.plot_logical_error(data_logical, "gkp_logical_error_vs_squeezing")
     return (run_experiment,)
 

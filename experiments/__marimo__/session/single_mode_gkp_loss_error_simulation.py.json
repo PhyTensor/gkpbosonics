@@ -119,14 +119,7 @@
           }
         }
       ],
-      "console": [
-        {
-          "type": "stream",
-          "name": "stderr",
-          "text": "/home/karoki/dev/gkpbosonics/.venv/lib/python3.9/site-packages/strawberryfields/apps/data/sample.py:20: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.\n  import pkg_resources\n",
-          "mimetype": "text/plain"
-        }
-      ]
+      "console": []
     },
     {
       "id": "lEQa",
@@ -182,7 +175,7 @@
     },
     {
       "id": "BYtC",
-      "code_hash": "a9c497e731435767d1c2c4bbf8561d46",
+      "code_hash": "7c58306f2c9378f4328341da73c00369",
       "outputs": [
         {
           "type": "data",
@@ -195,7 +188,7 @@
     },
     {
       "id": "RGSE",
-      "code_hash": "e720d860d7d1ce8f45b64200cd286c87",
+      "code_hash": "57e4256e145eeb6af0784ad24393b749",
       "outputs": [
         {
           "type": "data",
@@ -339,7 +332,7 @@
     },
     {
       "id": "Pvdt",
-      "code_hash": "36bc79741d413628251ae8e55eb84653",
+      "code_hash": "15c2988290a548601eeb4213bf84b42c",
       "outputs": [
         {
           "type": "data",

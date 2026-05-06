@@ -16,7 +16,8 @@ class SingleModeLossAnalysis:
 
         # Simulation parameters
         self.epsilons: np.ndarray = np.arange(0.01, 0.40, step=0.005)
-        self.quad_axis: np.ndarray = np.linspace(-4, 4, 256) * self.scale
+        # self.quad_axis: np.ndarray = np.linspace(-4, 4, 256) * self.scale
+        self.quad_axis: np.ndarray = np.linspace(-20, 20, 1000) * self.scale
         self.qubit_state: list = [0, 0]
 
     def create_gkp_circuit(self, qubit_state: list, epsilon: float, transmissivity: float) -> Program:
