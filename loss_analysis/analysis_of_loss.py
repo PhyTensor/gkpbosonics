@@ -93,7 +93,7 @@ def _(np, plt):
                         linestyle='-' if idx % 2 == 0 else '--')
 
             # Labels and Limits
-            ax.set_xlabel(r"Squeezing parameter $\varepsilon$ [dB]")
+            ax.set_xlabel(r"Squeezing parameter $\epsilon$ [dB]")
             ax.set_ylabel(r"Expectation value $\langle Z \rangle$")
 
             # Scientific Grid
