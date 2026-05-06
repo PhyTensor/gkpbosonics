@@ -108,10 +108,10 @@ def _(np, plt):
 
         def plot_logical_error(self, data_map: dict, filename: str):
             fig, ax = plt.subplots(figsize=(7, 5))
-        
+
             transmissivities = sorted(data_map.keys(), reverse=True)
             colors = plt.cm.magma(np.linspace(0.1, 0.8, len(transmissivities)))
-        
+
             for idx, eta in enumerate(transmissivities):
                 x, p_err = data_map[eta]
                 ax.plot(
@@ -121,17 +121,16 @@ def _(np, plt):
                     color=colors[idx],
                     linestyle='-' if idx % 2 == 0 else '--'
                 )
-        
+
             ax.set_xlabel(r"Squeezing parameter $\varepsilon$ [dB]")
             ax.set_ylabel(r"Logical error probability $P_{\mathrm{L}}$")
             ##ax.set_yscale("log")
             ax.minorticks_on()
             ax.legend(loc="upper left", ncol=2)
-        
+
             fig.tight_layout()
             plt.savefig(filename)
             plt.show()
-
     return (PublicationPlotter,)
 
 
@@ -144,12 +143,13 @@ def _(PublicationPlotter, SingleModeLossAnalysis):
 
         # 2. Define Param Space
         # Use clean splits for better visualization
-        loss_transmissivities = [1.0, 0.96, 0.93, 0.90]#, 0.85, 0.70]
+        loss_transmissivities = [1.0, 0.96, 0.93, 0.90, 0.85, 0.70]
+        #loss_transmissivities = [1.0, 0.96, 0.93, 0.90]
 
         # 3. Collect Data (Simulation Phase)
         data_store = {}
         data_logical = {}
-    
+
         print("Running Simulations...")
         for eta in loss_transmissivities:
             print(f"  -> Simulating eta={eta}")
@@ -162,8 +162,8 @@ def _(PublicationPlotter, SingleModeLossAnalysis):
 
         # 4. Visualize (Plotting Phase)
         print("Generating Figure...")
-        #plotter.plot_sweep(data_store, "single_mode_gkp_loss_analysis")
-        plotter.plot_logical_error(data_logical, "gkp_logical_error_vs_squeezing")
+        plotter.plot_sweep(data_store, "single_mode_gkp_loss_analysis")
+        # plotter.plot_logical_error(data_logical, "gkp_logical_error_vs_squeezing")
     return (run_experiment,)
 
 
