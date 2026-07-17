@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.13.15"
+__generated_with = "0.17.6"
 app = marimo.App(width="medium")
 
 
@@ -12,8 +12,7 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     # GKP States
 
     ## GKP States as Qubits
@@ -21,8 +20,7 @@ def _(mo):
     GKP states can be understood as superpositions of multiple squeezed states. They are examples of non-Gaussian states.
 
     GKP states are used as a means for encoding a qubit in a photonic mode - forming a GKP qubit. This presents us with a universal set of qubit gates and measurements that can be applied using already familiar Gaussian gates and measurements.
-    """
-    )
+    """)
     return
 
 
@@ -37,7 +35,41 @@ def _():
     from numpy import ndarray
 
     import matplotlib.pyplot as plt
+    plt.rcParams['font.family'] = 'DeJavu Serif'
+    plt.rcParams['font.serif'] = ['Times New Roman']
     from matplotlib import colors, colorbar
+    import matplotlib as mpl
+    from matplotlib import cm
+    mpl.rcParams.update({
+        # "font.family": "serif",
+        "mathtext.fontset": "cm",
+        "font.size": 11,
+
+        "axes.labelsize": 11,
+        "axes.titlesize": 11,
+        "axes.linewidth": 0.8,
+
+        "xtick.direction": "in",
+        "ytick.direction": "in",
+        "xtick.major.size": 4,
+        "ytick.major.size": 4,
+        "xtick.minor.size": 2,
+        "ytick.minor.size": 2,
+        "xtick.major.width": 0.8,
+        "ytick.major.width": 0.8,
+        "xtick.minor.width": 0.6,
+        "ytick.minor.width": 0.6,
+        "xtick.top": True,
+        "ytick.right": True,
+
+        "lines.linewidth": 1.2,
+        "lines.markersize": 4,
+
+        "figure.dpi": 300,
+        "savefig.dpi": 300,
+        "savefig.bbox": "tight",
+        "savefig.pad_inches": 0.02,
+    })
     return (
         BaseBosonicState,
         Engine,
@@ -62,8 +94,7 @@ def _(np):
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Ideal GKP Qubits
 
     For GKP encoding, the Wigner function of the idea GKP qubit $|0\rangle_{gkp}$ state consists of a linear combination of Dirac delta functions centered at half-integer multiples of $\sqrt{\pi\hbar}$ in phase space (ref: Encoding a qubit in an oscillator).
@@ -77,8 +108,7 @@ def _(mo):
     ### Visualisation of Ideal GKP qubit
 
     Visulisation of ideal GKP $|0\rangle_{gkp}$ and $|1\rangle_{gkp}$ states in phase space.
-    """
-    )
+    """)
     return
 
 
@@ -146,15 +176,14 @@ def _(Engine, Program, np, ops, plt, sf):
     ax[0].set_title(r"$|0\rangle_{\rm gkp}$", fontsize=11)
     ax[1].set_title(r"$|1\rangle_{\rm gkp}$", fontsize=11)
     ax[0].set_ylabel(r"$p$ (units of $\sqrt{\pi\hbar}$ )", fontsize=9)
-    fig.tight_layout()
+    fig.tight_layout(w_pad=1.2)
     plt.show()
-    return (scale,)
+    return fig, scale
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Finite-energy GKP states
 
     For the finite-energy GKP states, where their WIgner functions are expressed as linear combinations of Gaussian function; the Gaussian peaks, the variance, the location shift and the damping of the weights all depend on the finite-energy parameter $\epsilon$.
@@ -162,8 +191,7 @@ def _(mo):
     The weights govern how large the Wigner function gets.
 
     Visualising how the Wigner function changes as we cary $\epsilon$:
-    """
-    )
+    """)
     return
 
 
@@ -210,6 +238,7 @@ def _(
     colorbar,
     colors,
     epsilons: list,
+    fig,
     linear2db,
     np,
     plt,
@@ -237,28 +266,36 @@ def _(
             vmin=-cmax,
             vmax=cmax,
         )
-        axs[k].set_title(
-            r"$\epsilon =$" + str(epsilons[k]) + linear2db(epsilons[k])[1],
-            fontsize=11,
-        )
-        axs[k].set_xlabel(r"$q$ (units of $\sqrt{\pi\hbar}$ )", fontsize=9)
+        # axs[k].set_title(
+        #     r"$\epsilon =$" + str(epsilons[k]) + linear2db(epsilons[k])[1],
+        #     fontsize=11,
+        # )
+    
+        axs[k].set_xlabel(r"$q$ (units of $\sqrt{\pi\hbar}$ )")
 
-    axs[0].set_ylabel(r"$p$ (units of $\sqrt{\pi\hbar}$ )", fontsize=9)
-    cb1.set_label("Wigner function", fontsize=9)
-    fig2.tight_layout()
+        axs[k].text(
+                0.02, 0.95,
+                r"$\epsilon =$" + str(epsilons[k]) + linear2db(epsilons[k])[1],
+                transform=axs[k].transAxes,
+                ha="left",
+                va="top",
+                fontsize=11
+            )
+
+    axs[0].set_ylabel(r"$p$ (units of $\sqrt{\pi\hbar}$ )")
+    cb1.set_label("Wigner function")
+    fig.tight_layout(w_pad=1.2)
     plt.show()
     return
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     As $\epsilon$ increases, the variance of each peak increases, the peaks get closer and closer to the origin, and the weights drop exponentially away from the origin.
 
     In the limit as $\epsilon \rightarrow \infty$, the Fock damping is so strong that we essentially get a vacuum state.
-    """
-    )
+    """)
     return
 
 

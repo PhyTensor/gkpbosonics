@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.13.15"
+__generated_with = "0.17.6"
 app = marimo.App(width="medium")
 
 
@@ -12,7 +12,9 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.md("""An analysis of photon loss with varying squeezing parameter and finite-energy parameter""")
+    mo.md("""
+    An analysis of photon loss with varying squeezing parameter and finite-energy parameter
+    """)
     return
 
 
@@ -31,7 +33,8 @@ def _():
 def _():
     from experiments.single_mode_loss_analysis import SingleModeLossAnalysis
     from experiments.double_mode_loss_analysis import DoubleModeLossAnalysis
-    return (SingleModeLossAnalysis,)
+    from experiments.curve_analysis import Curve, Analyzer, MaximaExtractor
+    return Analyzer, SingleModeLossAnalysis
 
 
 @app.cell
@@ -92,7 +95,9 @@ def _(np):
 
 @app.cell
 def _(List):
-    loss_transmissivities: List[float] = [1.0, 0.93, 0.85, 0.70, 0.60]
+    # loss_transmissivities: List[float] = [1.0, 0.93, 0.96, 0.90, 0.85, 0.70, 0.60]
+    loss_transmissivities: List[float] = [1.0, 0.99, 0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 0.90, 0.895, 0.89, 0.885, 0.88, 0.87, 0.86, 0.85, 0.84, 0.83, 0.82, 0.81, 0.80, 0.79, 0.78]
+    # loss_transmissivities: List[float] = [1.0, 0.93, 0.96]
     return (loss_transmissivities,)
 
 
@@ -105,6 +110,7 @@ def _(SingleModeLossAnalysis):
 
 @app.cell
 def _(
+    Analyzer,
     basename_sm: str,
     linear2db,
     loss_transmissivities: "List[float]",
@@ -126,13 +132,30 @@ def _(
             x_vals: ndarray = single_mode_loss_analysis.epsilons
             x_vals_dev: ndarray = linear2db(x_vals)
 
+            label = rf"$\eta = {transmissivity}$"
+
             axsm.plot(
                 x_vals_dev,
                 y_vals,
                 linestyle="--",
                 # color=colorsk[idx],
-                label=rf"$\eta = {transmissivity}$",
+                label=label,
             )
+
+            # print(x_vals_dev, " => ", y_vals)
+
+            analysis: Analyzer = Analyzer()
+            analysis.add_data(x_vals_dev, y_vals, label)
+            peaks = analysis.run_analysis()
+            # print("--- Exact Maxima Extracted ---")
+            print(peaks)
+
+            # df = peaks[peaks["Label"] != "Label"]
+            # df = peaks[~peaks.index.str.contains("Label")]
+            # print(peaks.iloc[0])
+            # df = peaks.iloc[[0]]
+            # print(df)
+
 
             # Annotate the line with its transmissivity value
             # label_x = x_vals[len(x_vals)//3]
@@ -229,13 +252,11 @@ def _(
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     Logical Pauli Z expectation values for for the GKP circuit as a function of the GKP squeezing parameter $\epsilon$ for different values of the loss channel transmissivity $\eta$.
 
     The errors in the absence of losses are due to the finite squeezing of the finite GKP states.
-    """
-    )
+    """)
     return
 
 

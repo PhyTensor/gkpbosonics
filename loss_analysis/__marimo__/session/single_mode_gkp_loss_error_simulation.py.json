@@ -1,0 +1,125 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.17.6"
+  },
+  "cells": [
+    {
+      "id": "MJUe",
+      "code_hash": "bc3b1b9a152857c1e844566c957cb46d",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"single-mode-gkp-loss-simulation\">Single-Mode GKP Loss Simulation</h1>\n<span class=\"paragraph\">Visualizing the degradation of GKP states under photon loss using Wigner functions and Marginal distributions.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hbol",
+      "code_hash": "1d0db38904205bec4d6f6f6a1f6cec3e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "c8ad96c4ece98698e840d21e85d903e6",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "/home/karoki/dev/gkpbosonics/.venv/lib/python3.9/site-packages/strawberryfields/apps/data/sample.py:20: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.\n  import pkg_resources\n",
+          "mimetype": "text/plain"
+        }
+      ]
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "143a8b226ddd5ed37faaf50786a0deed",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "d0c561ddc24eeb9fd15f66ed1cf1e689",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "d650659b9c125bdcec5a5efd30171786",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "7fc5537c6ff06dc38eb795ddd215a4a5",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "1",
+          "traceback": []
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Generating State...\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Calculating Wigner Function...\nComparing Ideal vs Lossy Marginals...\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "<span class=\"codehilite\"><div class=\"highlight\"><pre><span></span><span class=\"gt\">Traceback (most recent call last):</span>\n  File <span class=\"nb\">&quot;/tmp/marimo_210858/__marimo__cell_Xref_.py&quot;</span>, line <span class=\"m\">1</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"n\">run_simulation_analysis</span><span class=\"p\">()</span>\n  File <span class=\"nb\">&quot;/tmp/marimo_210858/__marimo__cell_PKri_.py&quot;</span>, line <span class=\"m\">18</span>, in <span class=\"n\">run_simulation_analysis</span>\n<span class=\"w\">    </span><span class=\"n\">sx</span><span class=\"p\">,</span> <span class=\"n\">sp</span> <span class=\"o\">=</span> <span class=\"n\">sim</span><span class=\"o\">.</span><span class=\"n\">get_ideal_samples</span><span class=\"p\">(</span><span class=\"n\">shots</span><span class=\"o\">=</span><span class=\"mi\">4000</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/tmp/marimo_210858/__marimo__cell_bkHC_.py&quot;</span>, line <span class=\"m\">35</span>, in <span class=\"n\">get_ideal_samples</span>\n<span class=\"w\">    </span><span class=\"n\">samples_p</span> <span class=\"o\">=</span> <span class=\"bp\">self</span><span class=\"o\">.</span><span class=\"n\">engine</span><span class=\"o\">.</span><span class=\"n\">run</span><span class=\"p\">(</span><span class=\"n\">prog_p</span><span class=\"p\">,</span> <span class=\"n\">shots</span><span class=\"o\">=</span><span class=\"n\">shots</span><span class=\"p\">)</span><span class=\"o\">.</span><span class=\"n\">samples</span><span class=\"p\">[:,</span> <span class=\"mi\">0</span><span class=\"p\">]</span>\n  File <span class=\"nb\">&quot;/home/karoki/dev/gkpbosonics/.venv/lib/python3.9/site-packages/strawberryfields/engine.py&quot;</span>, line <span class=\"m\">570</span>, in <span class=\"n\">run</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"nb\">super</span><span class=\"p\">()</span><span class=\"o\">.</span><span class=\"n\">_run</span><span class=\"p\">(</span>\n  File <span class=\"nb\">&quot;/home/karoki/dev/gkpbosonics/.venv/lib/python3.9/site-packages/strawberryfields/engine.py&quot;</span>, line <span class=\"m\">300</span>, in <span class=\"n\">_run</span>\n<span class=\"w\">    </span><span class=\"n\">p</span><span class=\"o\">.</span><span class=\"n\">reg_refs</span><span class=\"p\">[</span><span class=\"n\">k</span><span class=\"p\">]</span><span class=\"o\">.</span><span class=\"n\">val</span> <span class=\"o\">=</span> <span class=\"n\">v</span>\n<span class=\"gr\">KeyError</span>: <span class=\"n\">1</span>\n</pre></div>\n</span>",
+          "mimetype": "application/vnd.marimo+traceback"
+        }
+      ]
+    }
+  ]
+}
