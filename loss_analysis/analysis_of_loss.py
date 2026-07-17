@@ -88,7 +88,7 @@ def _(np, plt):
                 x, y = data_map[eta]
                 # Combine line and markers for distinctiveness in B&W
                 ax.plot(x, y,
-                        label=rf"$\eta = {eta:.2f}$",
+                        label=rf"$\eta = {(1-eta):.2f}$",
                         color=colors[idx],
                         linestyle='-' if idx % 2 == 0 else '--')
 
@@ -125,7 +125,7 @@ def _(np, plt):
                 ax.plot(
                     x,
                     p_err,
-                    label=rf"$\eta = {eta:.2f}$",
+                    label=rf"$\eta = {(1-eta):.2f}$",
                     color=colors[idx],
                     linestyle='-' if idx % 2 == 0 else '--'
                 )
@@ -160,7 +160,7 @@ def _(PublicationPlotter, SingleModeLossAnalysis, np):
 
         print("Running Simulations...")
         for eta in loss_transmissivities:
-            print(f"\n\nSimulating for photon loss parameter: {eta}")
+            print(f"\n\nSimulating for photon loss parameter: {(1-eta)}")
             x_vals, exps, p_logical = analyzer.run_sweep(transmissivity=eta)
 
             # Extract Z expectation (index 2)
