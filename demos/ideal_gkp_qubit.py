@@ -173,8 +173,8 @@ def _(gkp_0, gkp_1, np, plt, scale):
         ax[i].minorticks_on()
         ax[i].tick_params(labelsize=10)
 
-    ax[0].set_title(r"$|0\rangle_{\rm gkp}$", pad=4)
-    ax[1].set_title(r"$|1\rangle_{\rm gkp}$", pad=4)
+    ax[0].set_title(r"$|0\rangle_{\rm GKP}$", pad=4)
+    ax[1].set_title(r"$|1\rangle_{\rm GKP}$", pad=4)
 
     ax[0].set_ylabel(r"$p$ ($\sqrt{\pi\hbar}$ )")
 

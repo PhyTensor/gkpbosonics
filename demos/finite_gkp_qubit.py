@@ -122,7 +122,7 @@ def _(TwoSlopeNorm, np, plt, sf):
         wmax = max(abs(W0).max(), abs(W1).max())
         norm = TwoSlopeNorm(vmin=-wmax, vcenter=0.0, vmax=wmax)
         levels = 80  # enough to be smooth, not noisy
-    
+
         cont0 = ax[0].contourf(xvec, xvec, W0, levels=levels, cmap="RdBu_r", norm=norm)
         cont1 = ax[1].contourf(xvec, xvec, W1, levels=levels, cmap="RdBu_r", norm=norm)
 
@@ -131,14 +131,14 @@ def _(TwoSlopeNorm, np, plt, sf):
             a.set_xlabel(r"$q\;(\sqrt{\pi\hbar})$")
             a.minorticks_on()
             a.tick_params(labelsize=10)
-    
+
         # ax.set_title(title)
         # ax[0].set_xlabel(r"$q$ (units of $\sqrt{\pi\hbar}$)")
         # ax[1].set_xlabel(r"$q$ (units of $\sqrt{\pi\hbar}$)")
         ax[0].set_ylabel(r"$p$ ($\sqrt{\pi\hbar}$)")
 
-        ax[0].set_title(r"$|0\rangle_{\rm gkp}$", pad=4)
-        ax[1].set_title(r"$|1\rangle_{\rm gkp}$", pad=4)
+        ax[0].set_title(r"$|0\rangle_{\rm GKP}$", pad=4)
+        ax[1].set_title(r"$|1\rangle_{\rm GKP}$", pad=4)
 
         # fig.colorbar(cont1)
         # Single shared colorbar
@@ -150,7 +150,7 @@ def _(TwoSlopeNorm, np, plt, sf):
         )
         cbar.set_label(r"$W(q,p)$", fontsize=10)
         cbar.ax.tick_params(labelsize=9)
-    
+
         fig.tight_layout(w_pad=1.4)
 
         # plt.grid(True, linestyle="--", alpha=0.3)
